@@ -1,0 +1,14 @@
+name: "libDwmWebUtils"
+version: "@TAGVERSION@"
+origin: "devel/libDwmWebUtils"
+prefix: "@prefix@"
+www: "http://www.rfdm.com"
+maintainer: "dwmcrobb@me.com"
+comment: "C++ classes for fetching web content via http and https"
+desc: "C++ classes for fetching web content via http and https."
+licenselogic: "single"
+licenses: ["BSD"]
+categories: ["devel"]
+scripts: {
+  post-install: "#!/bin/sh\nldconfig @prefix@/lib\n"
+}

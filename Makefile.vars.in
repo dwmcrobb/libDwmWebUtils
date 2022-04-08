@@ -1,0 +1,12 @@
+BZINC            = @BZ2INC@
+BZLIB            = @BZ2LIB@
+CXX              = @CXX@
+CXXFLAGS         = @CXXFLAGS@
+DWMDIR           = @DWMDIR@
+DWMINCS          = @DWMINCS@
+DWMLIBS          = @DWMLIBS@
+INSTALLPREFIX    = @prefix@
+OSNAME           = @OSNAME@
+PTHREADCXXFLAGS  = @PTHREADCXXFLAGS@
+TARDIR		 = @TARDIR@@prefix@
+VERSION		 = @DWM_VERSION@

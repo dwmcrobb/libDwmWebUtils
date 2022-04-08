@@ -1,0 +1,10 @@
+Section: libdevel
+Priority: optional
+Maintainer: Daniel McRobb <dwm@mcplex.net>
+Build-Depends: debhelper-compat (= 12), autotools-dev
+Standards-Version: 4.4.1
+Homepage: http://www.mcplex.net
+Package: libDwmWebUtils
+Version: @TAGVERSION@
+Architecture: @DEBARCH@
+Description: C++ classes for fetching web content via http and https.
