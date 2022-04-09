@@ -41,6 +41,7 @@ case $host_os in
     KVMLIB=""
     LDFLAGS="${LDFLAGS} -O2 -stdlib=libc++ -std=c++14"
     LIBTOOL="glibtool"
+    OSLIBS+="-framework Foundation -framework Security"
     ;;
 esac
 

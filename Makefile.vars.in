@@ -6,6 +6,7 @@ DWMDIR           = @DWMDIR@
 DWMINCS          = @DWMINCS@
 DWMLIBS          = @DWMLIBS@
 INSTALLPREFIX    = @prefix@
+OSLIBS		 = @OSLIBS@
 OSNAME           = @OSNAME@
 PTHREADCXXFLAGS  = @PTHREADCXXFLAGS@
 TARDIR		 = @TARDIR@@prefix@

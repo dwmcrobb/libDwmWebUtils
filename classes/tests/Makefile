@@ -7,6 +7,7 @@ OBJDEPS	 	= $(OBJFILES:%.o=deps/%_deps)
 TESTS	 	= $(OBJFILES:%.o=%)
 ALLINCS		= ${DWMINCS} ${MYINCS}
 ALLLIBS  	= ../lib/libDwmWebUtils.a ${DWMLIBS} -lssl -lcrypto
+ALLLIBS        += ${OSLIBS}
 
 all: ${TESTS}
 
