@@ -91,7 +91,7 @@ namespace Dwm {
     //!  
     //------------------------------------------------------------------------
     std::unique_ptr<ssl::stream<tcp::socket>>
-    Connect(asio::io_context& ctx, ssl::context& ssl_ctx,
+    Connect(asio::io_context & ctx, ssl::context & ssl_ctx,
             std::string const & hostname, const std::string & service)
     {
       auto stream =
@@ -271,21 +271,6 @@ namespace Dwm {
       }
       return rc;
     }
-
-#if 0
-    //------------------------------------------------------------------------
-    //!  
-    //------------------------------------------------------------------------
-    int main(int argc, char *argv[])
-    {
-      nlohmann::json  json;
-      //  GetJson("https://api.weather.gov/stations/KPTK/observations/latest",
-      //          json);
-      GetJson(argv[1], json);
-      std::cout << json.dump(3) << '\n';
-      return 0;
-    }
-#endif
 
   }  // namespace WebUtils
 
