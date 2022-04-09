@@ -13,7 +13,7 @@ DWM_SET_CXX_SHARED_FLAGS
 dnl  Set variables for pthreads
 DWM_SET_PTHREADFLAGS
 
-OSLIBS=""
+OSLIBS="-lssl -lcrypto"
 KVMLIB="-lkvm"
 LIBTOOL="libtool"
 
