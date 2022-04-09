@@ -49,7 +49,15 @@ namespace Dwm {
 
   namespace WebUtils {
 
+    //------------------------------------------------------------------------
+    //!  Fetches the JSON at the given URL @c urlstr and stores it in @c json.
+    //!  Returns true on success, false on failure.
+    //------------------------------------------------------------------------
     bool GetJson(const std::string & urlstr, nlohmann::json & json);
+
+    //------------------------------------------------------------------------
+    //!  Returns the status code of the given URL @c urlstr.
+    //------------------------------------------------------------------------
     int GetStatus(const std::string & urlstr);
     
   }  // namespace WebUtils
