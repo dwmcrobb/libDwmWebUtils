@@ -8,6 +8,7 @@ TESTS	 	= $(OBJFILES:%.o=%)
 ALLINCS		= ${DWMINCS} ${MYINCS}
 ALLLIBS  	= ../lib/libDwmWebUtils.a ${DWMLIBS} -lssl -lcrypto
 ALLLIBS        += ${OSLIBS}
+LDFLAGS		= -Wl,-rpath ${DWMDIR}/lib
 
 all: ${TESTS}
 
