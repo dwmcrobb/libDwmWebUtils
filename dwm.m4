@@ -221,7 +221,7 @@ define(DWM_SET_PKGVARS,[
       ;;
     linux*)
       OSNAME="linux"
-      OSVERSION=`kernelversion`
+      OSVERSION=`uname -r | cut -d- -f1`
       OSARCH=`uname -m`
       case $OSARCH in
 	i[[3456]]86)

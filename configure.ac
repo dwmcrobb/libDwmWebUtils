@@ -65,40 +65,6 @@ AC_SUBST(DWMDIR)
 AC_SUBST(DWMINCS)
 AC_SUBST(DWMLIBS)
 
-dnl  Look for libtermcap
-AC_LANG_PUSH(C++)
-AC_CHECK_LIB(termcap, tgetent, [TERMCAPLIB=-ltermcap], [exit 1])
-AC_LANG_POP()
-AC_SUBST(TERMCAPLIB)
-
-dnl  Look for libz
-AC_LANG_PUSH(C++)
-AC_CHECK_LIB(z, gzwrite, [ZLIB=-lz], [exit 1])
-AC_LANG_POP()
-AC_SUBST(ZLIB)
-
-dnl ------------------------------------------------------------------------
-dnl //  Check for libbz2
-dnl ------------------------------------------------------------------------
-DWM_PREREQ_PATH(bz2src, [], [bz2 source path])
-if [[ -n "$bz2src" ]]; then
-   OLDLDFLAGS="${LDFLAGS}"
-   LDFLAGS="${LDFLAGS} -L${bz2src}"
-   AC_CHECK_LIB(bz2, BZ2_bzwrite, 
-                [ BZ2LIB="-L${bz2src} -lbz2"
-                  BZ2INC="-I${bz2src}"
-                ],
-                [exit 1])
-   LDFLAGS="${OLDLDFLAGS}"
-else
-  AC_LANG_PUSH(C++)
-  AC_CHECK_LIB(bz2, BZ2_bzwrite, [BZ2LIB=-lbz2], [exit 1])
-  AC_LANG_POP()
-fi
-
-AC_SUBST(BZ2INC)
-AC_SUBST(BZ2LIB)
-
 dnl ------------------------------------------------------------------------
 dnl //  Check for libpcap
 dnl ------------------------------------------------------------------------
