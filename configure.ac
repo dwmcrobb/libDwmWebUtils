@@ -65,25 +65,6 @@ AC_SUBST(DWMDIR)
 AC_SUBST(DWMINCS)
 AC_SUBST(DWMLIBS)
 
-dnl ------------------------------------------------------------------------
-dnl //  Check for libpcap
-dnl ------------------------------------------------------------------------
-DWM_PREREQ_PATH(pcapsrc, [], [pcap source path])
-if [[ -n "$pcapsrc" ]]; then
-   OLDLDFLAGS="${LDFLAGS}"
-   LDFLAGS="${LDFLAGS} -L${pcapsrc}"
-   AC_CHECK_LIB(pcap, pcap_open_offline, 
-                [ PCAPLIB="-L${pcapsrc} -lpcap"
-                  PCAPINC="-I${pcapsrc}"
-                ],
-                [exit 1])
-   LDFLAGS="${OLDLDFLAGS}"
-else
-  AC_LANG_PUSH(C++)
-  AC_CHECK_LIB(pcap, pcap_open_offline, [PCAPLIB=-lpcap], [])
-  AC_LANG_POP()
-fi
-
 DWM_CHECK_BOOSTASIO
 DWM_CHECK_NEED_LIBIBVERBS
 
