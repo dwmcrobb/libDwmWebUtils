@@ -240,7 +240,10 @@ namespace Dwm {
       if (0 == _port) {
         _port = PortFromScheme(_scheme);
       }
-
+      if (_path.empty()) {
+        _path = "/";
+      }
+      
       bool  rc = false;
       if (lexrc != -1) {
         if (0 != _port) {
