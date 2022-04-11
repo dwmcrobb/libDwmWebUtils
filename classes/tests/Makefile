@@ -47,3 +47,6 @@ endif
 
 clean:
 	rm -f ${TESTS} ${OBJFILES}
+
+distclean:: clean
+	rm -f deps/*_deps
