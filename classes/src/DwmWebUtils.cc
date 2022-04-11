@@ -180,7 +180,7 @@ namespace Dwm {
     //------------------------------------------------------------------------
     int GetStatus(const std::string & urlstr)
     {
-      bool  rc = false;
+      int  rc = 0;
       Url  url;
       if (url.Parse(urlstr)) {
         if (url.Scheme() == "https") {
