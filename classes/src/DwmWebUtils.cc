@@ -165,6 +165,11 @@ namespace Dwm {
         auto  response = Get(*stream_ptr, url.Host(), url.AfterAuthority());
         rc = response.result_int();
       }
+      catch (const boost::system::system_error & ex) {
+        Syslog(LOG_ERR, "Exception getting status for %s://%s%s: %s",
+               url.Scheme().c_str(), url.Host().c_str(),
+               url.AfterAuthority().c_str(), ex.what());
+      }
       catch (...) {
       }
       if (stream_ptr) {
