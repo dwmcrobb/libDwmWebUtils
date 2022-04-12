@@ -263,6 +263,8 @@ namespace Dwm {
           }
         }
       }
+
+      url_lex_destroy(scanner);
       return rc;
     }
   
