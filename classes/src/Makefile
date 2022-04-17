@@ -4,7 +4,8 @@ include ../../Makefile.vars
 DWMLIBS		= $(shell pkg-config --libs libDwm)
 INCS            = -I../include ${DWMINCS}
 OBJFILESNP	= DwmWebUtils.o \
-                  DwmWebUtilsUrl.o
+                  DwmWebUtilsUrl.o \
+                  DwmWebUtilsVersion.o
 OBJFILES        = $(OBJFILESNP:%=../obj/%)
 OBJDEPS         = $(OBJFILESNP:%.o=deps/%_deps)
 
