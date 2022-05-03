@@ -131,9 +131,14 @@ int main(int argc, char *argv[])
     if (! UnitAssert(webUrl.Port() == goodUrls[i].port)) {
       cerr << webUrl.Port() << " != " << goodUrls[i].port << '\n';
     }
-    UnitAssert(webUrl.Path() == goodUrls[i].path);
+    UnitAssert(webUrl.Path() == goodUrls[i].path
+               || (webUrl.Path() == "/" && goodUrls[i].path.empty()));
     UnitAssert(webUrl.Query() == goodUrls[i].query);
     UnitAssert(webUrl.Fragment() == goodUrls[i].fragment);
+
+    Dwm::WebUtils::Url  webUrl2;
+    UnitAssert(webUrl2.Parse(webUrl.to_string()));
+    UnitAssert(webUrl2 == webUrl);
   }
 
   for (int i = 0; i < sizeof(badUrls) / sizeof(badUrls[0]); ++i) {

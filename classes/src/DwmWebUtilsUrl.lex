@@ -297,6 +297,34 @@ namespace Dwm {
       return rc;
     }
 
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    std::string Url::to_string() const
+    {
+      std::string  rc(_scheme + "://");
+      if (! _userinfo.empty()) {
+        rc += _userinfo + '@';
+      }
+      rc += _host + ':' + std::to_string(_port);
+      rc += AfterAuthority();
+      return rc;
+    }
+      
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    bool Url::operator == (const Url & url) const
+    {
+      return ((_scheme == url._scheme)
+              && (_userinfo == url._userinfo)
+              && (_host == url._host)
+              && (_port == url._port)
+              && (_path == url._path)
+              && (_query == url._query)
+              && (_fragment == url._fragment));
+    }
+
   }  // namespace WebUtils
   
 }  // namespace Dwm

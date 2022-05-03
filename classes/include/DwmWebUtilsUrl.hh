@@ -106,7 +106,11 @@ namespace Dwm {
       { return _fragment = fragment; }
 
       std::string AfterAuthority() const;
-    
+
+      std::string to_string() const;
+
+      bool operator == (const Url & url) const;
+      
     private:
       std::string   _scheme;
       std::string   _userinfo;
