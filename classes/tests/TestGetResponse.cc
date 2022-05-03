@@ -34,45 +34,70 @@
 //===========================================================================
 
 //---------------------------------------------------------------------------
-//!  \file DwmWebUtils.hh
+//!  \file TestGetResponse.cc
 //!  \author Daniel W. McRobb
-//!  \brief Dwm::WebUtils function declarations
+//!  \brief Unit tests for Dwm::WebUtils::GetResponse
 //---------------------------------------------------------------------------
 
-#ifndef _DWMWEBUTILS_HH_
-#define _DWMWEBUTILS_HH_
+#include <cassert>
+#include <chrono>
+#include <iostream>
+#include <thread>
 
-#define BOOST_BEAST_USE_STD_STRING_VIEW
+// #include <boost/beast/http/type_traits.hpp>
+// #include <boost/beast/http/serializer.hpp>
 
-#include <string>
-#include <boost/beast.hpp>
-#include <nlohmann/json.hpp>
+#include "DwmSysLogger.hh"
+#include "DwmUnitAssert.hh"
+#include "DwmWebUtils.hh"
 
-namespace Dwm {
+using namespace std;
+using namespace boost::beast;
+using namespace Dwm::WebUtils;
 
-  namespace WebUtils {
+template<bool isRequest, class Body, class Fields>
+void print_cxx14(http::message<isRequest, Body, Fields> const& m)
+{
+  boost::system::error_code ec;
+  http::serializer<isRequest, Body, Fields> sr{m};
+  do
+  {
+    sr.next(ec,
+            [&sr](boost::system::error_code & ec, auto const & buffer)
+            {
+              ec = {};
+              std::cout << make_printable(buffer);
+              sr.consume(buffer_bytes(buffer));
+            });
+  }
+  while (! ec && ! sr.is_done());
+  if (! ec) {
+    std::cout << std::endl;
+  }
+  else {
+    std::cerr << ec.message() << std::endl;
+  }
+  return;
+}
 
-    using namespace boost::beast;
-    
-    //------------------------------------------------------------------------
-    //!  Fetches the JSON at the given URL @c urlstr and stores it in @c json.
-    //!  Returns true on success, false on failure.
-    //------------------------------------------------------------------------
-    bool GetJson(const std::string & urlstr, nlohmann::json & json);
+//----------------------------------------------------------------------------
+//!  
+//----------------------------------------------------------------------------
+int main(int argc, char *argv[])
+{
+  Dwm::SysLogger::Open("TestGetResponse", LOG_PID|LOG_PERROR, LOG_USER);
 
-    //------------------------------------------------------------------------
-    //!  Returns the status code of the given URL @c urlstr.
-    //------------------------------------------------------------------------
-    int GetStatus(const std::string & urlstr);
+  string  urlstr("https://api.weather.gov/stations/KPTK/observations/latest");
+  // string  urlstr("https://www.google.com/");
+  http::response<http::string_body>  response;
+  if (UnitAssert(GetResponse(urlstr, response))) {
+    print_cxx14(response);
+    cout << response.body() << '\n';
+  }
+  
+  if (Dwm::Assertions::Total().Failed())
+    Dwm::Assertions::Print(cerr, true);
+  else
+    cout << Dwm::Assertions::Total() << " passed" << endl;
 
-    //------------------------------------------------------------------------
-    //!  
-    //------------------------------------------------------------------------
-    bool GetResponse(const std::string & urlstr,
-                     http::response<http::string_body> & response);
-    
-  }  // namespace WebUtils
-
-}  // namespace Dwm
-
-#endif  // _DWMWEBUTILS_HH_
+}

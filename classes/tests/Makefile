@@ -2,11 +2,12 @@ include ../../Makefile.vars
 
 MYINCS		= -I../include
 OBJFILES 	= TestGetJson.o \
+                  TestGetResponse.o \
                   TestUrl.o
 OBJDEPS	 	= $(OBJFILES:%.o=deps/%_deps)
 TESTS	 	= $(OBJFILES:%.o=%)
 ALLINCS		= ${DWMINCS} ${MYINCS}
-ALLLIBS  	= ${DWMLIBS} -lssl -lcrypto
+ALLLIBS  	= ../lib/libDwmWebUtils.a ${DWMLIBS} -lssl -lcrypto
 ALLLIBS        += ${OSLIBS}
 LDFLAGS		= -Wl,-rpath ${DWMDIR}/lib
 
@@ -39,10 +40,10 @@ endif
 %.o: %.cc deps/%_deps
 	${CXX} ${CXXFLAGS} ${PTHREADCXXFLAGS} ${ALLINCS} -c $<
 
-%: %.o ../lib/libDwmWebUtils.la
-	${LIBTOOL} --mode=link ${CXX} ${LDFLAGS} -o $@ $^ ${ALLLIBS}
+%: %.o ../lib/libDwmWebUtils.a
+	${CXX} ${LDFLAGS} -o $@ $< ${ALLLIBS}
 
-../lib/libDwmWebUtils.la::
+../lib/libDwmWebUtils.a::
 	${MAKE} -C ../src
 
 clean:

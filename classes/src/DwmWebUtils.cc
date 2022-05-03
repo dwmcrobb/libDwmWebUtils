@@ -46,7 +46,6 @@
 #include <string_view>
 
 #include <boost/asio.hpp>
-#include <boost/beast.hpp>
 #include <boost/certify/extensions.hpp>
 #include <boost/certify/https_verification.hpp>
 
@@ -100,7 +99,20 @@ namespace Dwm {
                                                      ssl_ctx);
       boost::certify::set_server_hostname(*stream, hostname);
       boost::certify::sni_hostname(*stream, hostname);
-      stream->handshake(ssl::stream_base::handshake_type::client);
+      boost::system::error_code  ec;
+      try {
+        stream->handshake(ssl::stream_base::handshake_type::client);
+      }
+      catch (std::exception & ex) {
+        Syslog(LOG_ERR, "Failed to connect to '%s:%s': %s", hostname.c_str(),
+               service.c_str(), ex.what());
+        throw;
+      }
+      catch (...) {
+        Syslog(LOG_ERR, "Failed to connect to '%s:%s'", hostname.c_str(),
+               service.c_str());
+        throw;
+      }
       return stream;
     }
 
@@ -111,18 +123,17 @@ namespace Dwm {
     http::response<http::string_body>
     Get(T & stream, std::string_view hostname, std::string_view urlstr)
     {
-      http::request<http::empty_body> request;
+      http::request<http::string_body> request;
       request.method(http::verb::get);
       request.target(urlstr);
       request.keep_alive(false);
       request.set(http::field::host, hostname);
-      request.set(http::field::user_agent, "mcrover/mcrover@caida.org");
+      request.set(http::field::user_agent, "mcrover/1.0");
       http::write(stream, request);
-
       http::response<http::string_body> response;
       beast::flat_buffer buffer;
       http::read(stream, buffer, response);
-
+      
       return response;
     }
 
@@ -200,6 +211,30 @@ namespace Dwm {
       }
       return rc;
     }
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    bool
+    GetResponseViaHttp(const Url & url,
+                       http::response<http::string_body> & response)
+    {
+      bool  rc = false;
+      asio::io_context ctx;
+      beast::tcp_stream stream(ctx);
+      try {
+        stream.connect(resolve(ctx, url.Host(), url.Scheme()));
+        response = Get(stream, url.Host(), url.AfterAuthority());
+        rc = true;
+      }
+      catch (...) {
+        Syslog(LOG_ERR, "Got exception");
+      }
+      beast::error_code ec;
+      stream.socket().shutdown(tcp::socket::shutdown_both, ec);
+    
+      return rc;
+    }
     
     //------------------------------------------------------------------------
     //!  
@@ -207,21 +242,45 @@ namespace Dwm {
     static bool GetJsonViaHttp(const Url & url, nlohmann::json & json)
     {
       bool  rc = false;
+      http::response<http::string_body> response;
+      if (GetResponseViaHttp(url, response)) {
+        json = nlohmann::json::parse(response.body());
+        rc = true;
+      }
+      return rc;
+    }
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    static bool 
+    GetResponseViaHttps(const Url & url,
+                        http::response<http::string_body> & response)
+    {
+      bool  rc = false;
       asio::io_context ctx;
-      beast::tcp_stream stream(ctx);
+      ssl::context ssl_ctx{ssl::context::tls_client};
+      ssl_ctx.set_verify_mode(ssl::context::verify_peer |
+                              ssl::context::verify_fail_if_no_peer_cert);
+      ssl_ctx.set_default_verify_paths();
+      boost::certify::enable_native_https_server_verification(ssl_ctx);
+      std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
       try {
-        stream.connect(resolve(ctx, url.Host(), url.Scheme()));
-        auto  response = Get(stream, url.Host(), url.AfterAuthority());
-        if (response.result_int() == 200) {
-          json = nlohmann::json::parse(response.body());
-          rc = true;
-        }
+        stream_ptr = Connect(ctx, ssl_ctx, url.Host(), url.Scheme());
+        response = Get(*stream_ptr, url.Host(), url.AfterAuthority());
+        rc = true;
       }
+      catch (const std::exception & ex) {
+        Syslog(LOG_ERR, "Got exception: %s", ex.what());
+      } 
       catch (...) {
+        Syslog(LOG_ERR, "Got exception");
       }
-      beast::error_code ec;
-      stream.socket().shutdown(tcp::socket::shutdown_both, ec);
-    
+      if (stream_ptr) {
+        boost::system::error_code  ec;
+        stream_ptr->shutdown(ec);
+        stream_ptr->next_layer().close(ec);
+      }
       return rc;
     }
 
@@ -259,6 +318,31 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
+    bool GetResponse(const std::string & urlstr,
+                     http::response<http::string_body> & response)
+    {
+      bool  rc = false;
+      Url  url;
+      if (url.Parse(urlstr)) {
+        if (url.Scheme() == "https") {
+          rc = GetResponseViaHttps(url, response);
+        }
+        else if (url.Scheme() == "http") {
+          rc = GetResponseViaHttp(url, response);
+        }
+        else {
+          Syslog(LOG_ERR, "Unhandled URL scheme '%s'", urlstr.c_str());
+        }
+      }
+      else {
+        Syslog(LOG_ERR, "Failed to parse URL '%s'", urlstr.c_str());
+      }
+      return rc;
+    }
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
     bool GetJson(const std::string & urlstr, nlohmann::json & json)
     {
       bool  rc = false;
@@ -277,6 +361,7 @@ namespace Dwm {
       return rc;
     }
 
+    
   }  // namespace WebUtils
 
 }  // namespace Dwm
