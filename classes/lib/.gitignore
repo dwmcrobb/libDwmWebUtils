@@ -1,3 +1,4 @@
+.libs/**
 *~
 libDwmWebUtils.a
-
+libDwmWebUtils.la

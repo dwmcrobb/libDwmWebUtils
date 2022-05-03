@@ -1,15 +1,20 @@
 include ../../Makefile.vars
 
-# CXXFLAGS	= -O2 $(shell pkg-config --cflags libDwm)
+LTCOMPILE    = ${LIBTOOL} --mode=compile --tag=CXX ${CXX}
+LTLINK       = ${LIBTOOL} --tag=CXX --mode=link ${CXX}
+
 DWMLIBS		= $(shell pkg-config --libs libDwm)
 INCS            = -I../include ${DWMINCS}
 OBJFILESNP	= DwmWebUtils.o \
-                  DwmWebUtilsUrl.o
+                  DwmWebUtilsUrl.o \
+                  DwmWebUtilsVersion.o
 OBJFILES        = $(OBJFILESNP:%=../obj/%)
 OBJDEPS         = $(OBJFILESNP:%.o=deps/%_deps)
+SHARED_OBJFILES = $(OBJFILES:%.o=%.lo)
+shlib_version = $(shell ../../getvers.sh -s)
 
-../lib/libDwmWebUtils.a: ${OBJFILES}
-	ar rv $@ $^
+../lib/libDwmWebUtils.la: ${SHARED_OBJFILES}
+	${LTLINK} -o $@ $^ -rpath ${INSTALLPREFIX}/lib -version-info ${shlib_version} ${DWMLIBS}
 
 #  dependency rule
 deps/%_deps: %.cc
@@ -26,22 +31,22 @@ ifneq ($(MAKECMDGOALS),distclean)
 endif
 endif
 
-../obj/%.o: %.cc
-	${CXX} ${CXXFLAGS} -o $@ -c $< ${INCS}
+../obj/%.lo ../obj/%.o: %.cc
+	${LTCOMPILE} ${CXXFLAGS} -o $@ -c $< ${INCS}
 
 DwmWebUtilsUrl.cc: DwmWebUtilsUrl.lex
 	flex -d -o$@ $<
 
-tarprep: ${TARDIR}/lib/libDwmWebUtils.a
+tarprep: ${TARDIR}/lib/libDwmWebUtils.la
 
-${TARDIR}/lib/libDwmWebUtils.a: ../lib/libDwmWebUtils.a
-	../../install-sh -c $< $@
+${TARDIR}/lib/libDwmWebUtils.la: ../lib/libDwmWebUtils.la
+	${LIBTOOL} --mode=install ../../install-sh -c $< $@
 
 clean:: clean-tarprep
-	rm -f ../lib/libDwmWebUtils.a ${OBJFILES} DwmWebUtilsUrl.cc
+	${LIBTOOL} --mode=uninstall rm -f ../lib/libDwmWebUtils.la ${OBJFILES} DwmWebUtilsUrl.cc
 
 distclean:: clean
 	rm -f ${OBJDEPS}
 
 clean-tarprep::
-	${LIBTOOL} --mode=clean rm -f ${TARDIR}/lib/libDwmWebUtils.a
+	${LIBTOOL} --mode=uninstall rm -f ${TARDIR}/lib/libDwmWebUtils.la
