@@ -8,6 +8,7 @@ ALLINCS		= ${DWMINCS} ${MYINCS}
 ALLLIBS  	= ../../classes/lib/libDwmWebUtils.a ${DWMLIBS} -lssl -lcrypto
 ALLLIBS        += ${OSLIBS}
 LDFLAGS		= -Wl,-rpath ${DWMDIR}/lib
+TARTARGETS      = ${TARDIR}/bin/dwmfetch
 
 all: ${APPS}
 
@@ -33,8 +34,14 @@ endif
 ../../classes/lib/libDwmWebUtils.a::
 	${MAKE} -C ../../classes/src
 
-clean:
+tarprep: ${TARTARGETS}
+
+${TARDIR}/bin/dwmfetch: ${APPS}
+	../../install-sh -s -c -m 555 $< $@
+
+clean::
 	rm -f ${APPS} ${OBJFILES}
+	rm -f ${TARTARGETS}
 
 distclean:: clean
 	rm -f deps/*_deps

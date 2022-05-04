@@ -1,12 +1,16 @@
 include Makefile.vars
 
-all:: classes/lib/libDwmWebUtils.a
+all:: classes/lib/libDwmWebUtils.a apps
 
 classes/lib/libDwmWebUtils.a::
 	${MAKE} -C classes
 
-tarprep:: classes/lib/libDwmWebUtils.a
+apps::
+	${MAKE} -C apps
+
+tarprep:: classes/lib/libDwmWebUtils.a apps
 	${MAKE} -C classes $@
+	${MAKE} -C apps $@
 ifeq ("${BUILD_DOCS}", "yes")
 	${MAKE} -C doc $@
 endif
@@ -29,9 +33,11 @@ linux-pkg: tarprep
 
 clean::
 	${MAKE} -C classes $@
+	${MAKE} -C apps $@
 
 distclean:: clean
 	${MAKE} -C classes $@
+	${MAKE} -C apps $@
 	${MAKE} -C packaging $@
 	rm -Rf autom4te.cache staging
 	rm -f config.log config.status Makefile.vars
