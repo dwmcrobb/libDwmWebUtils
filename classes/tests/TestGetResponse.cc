@@ -88,11 +88,12 @@ int main(int argc, char *argv[])
   Dwm::SysLogger::Open("TestGetResponse", LOG_PID|LOG_PERROR, LOG_USER);
 
   string  urlstr("https://api.weather.gov/stations/KPTK/observations/latest");
-  // string  urlstr("https://www.google.com/");
   http::response<http::string_body>  response;
   if (UnitAssert(GetResponse(urlstr, response))) {
-    print_cxx14(response);
-    cout << response.body() << '\n';
+    nlohmann::json  json =
+      nlohmann::json::parse(response.body(), nullptr, false);
+    UnitAssert(! json.is_discarded());
+    // print_cxx14(response);
   }
   
   if (Dwm::Assertions::Total().Failed())
