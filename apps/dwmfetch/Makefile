@@ -1,11 +1,12 @@
 include ../../Makefile.vars
 
+LTLINK          = ${LIBTOOL} --tag=CXX --mode=link ${CXX}
 MYINCS		= -I../../classes/include
 OBJFILES 	= dwmfetch.o
 OBJDEPS	 	= $(OBJFILES:%.o=deps/%_deps)
 APPS	 	= $(OBJFILES:%.o=%)
 ALLINCS		= ${DWMINCS} ${MYINCS}
-ALLLIBS  	= ../../classes/lib/libDwmWebUtils.a ${DWMLIBS} -lssl -lcrypto
+ALLLIBS  	= ../../classes/lib/libDwmWebUtils.la ${DWMLIBS} -lssl -lcrypto
 ALLLIBS        += ${OSLIBS}
 LDFLAGS		= -Wl,-rpath ${DWMDIR}/lib
 TARTARGETS      = ${TARDIR}/bin/dwmfetch
@@ -28,16 +29,16 @@ endif
 %.o: %.cc deps/%_deps
 	${CXX} ${CXXFLAGS} ${PTHREADCXXFLAGS} ${ALLINCS} -c $<
 
-%: %.o ../../classes/lib/libDwmWebUtils.a
-	${CXX} ${LDFLAGS} -o $@ $< ${ALLLIBS}
+%: %.o ../../classes/lib/libDwmWebUtils.la
+	${LTLINK} ${LDFLAGS} -o $@ $< ${ALLLIBS}
 
-../../classes/lib/libDwmWebUtils.a::
+../../classes/lib/libDwmWebUtils.la::
 	${MAKE} -C ../../classes/src
 
 tarprep: ${TARTARGETS}
 
 ${TARDIR}/bin/dwmfetch: ${APPS}
-	../../install-sh -s -c -m 555 $< $@
+	${LIBTOOL} --mode=install ../../install-sh -s -c -m 555 $< $@
 
 clean::
 	rm -f ${APPS} ${OBJFILES}
