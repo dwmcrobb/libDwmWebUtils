@@ -13,15 +13,15 @@ OBJDEPS         = $(OBJFILESNP:%.o=deps/%_deps)
 SHARED_OBJFILES = $(OBJFILES:%.o=%.lo)
 shlib_version = $(shell ../../getvers.sh -s)
 
-../lib/libDwmWebUtils.la: ${SHARED_OBJFILES}
-	${LTLINK} -o $@ $^ -rpath ${INSTALLPREFIX}/lib -version-info ${shlib_version} ${DWMLIBS}
+../lib/libDwmWebUtils.la: ${SHARED_OBJFILES} ${OBJFILES}
+	${LTLINK} -o $@ ${SHARED_OBJFILES} -rpath ${INSTALLPREFIX}/lib -version-info ${shlib_version} ${DWMLIBS}
 
 #  dependency rule
 deps/%_deps: %.cc
 	@echo "making dependencies for $<"
 	@set -e; \
 	${CXX} -MM ${CXXFLAGS} ${INCS} -c $< | \
-	 sed 's/\($*\)\.o[ :]*/\1.o $(@D)\/$(@F) : /g' > $@ ; [ -s $@ ] || \
+	 sed 's/\($*\)\.o[ :]*/\1.o \1.lo $(@D)\/$(@F) : /g' > $@ ; [ -s $@ ] || \
 	 rm -f $@
 
 #  only include dependency makefiles if target is not 'clean' or 'distclean'
@@ -31,7 +31,7 @@ ifneq ($(MAKECMDGOALS),distclean)
 endif
 endif
 
-../obj/%.lo ../obj/%.o: %.cc
+../obj/%.lo ../obj/%.o: %.cc deps/%_deps
 	${LTCOMPILE} ${CXXFLAGS} -o $@ -c $< ${INCS}
 
 DwmWebUtilsUrl.cc: DwmWebUtilsUrl.lex
