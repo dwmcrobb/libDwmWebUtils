@@ -44,9 +44,6 @@
 #include <iostream>
 #include <thread>
 
-// #include <boost/beast/http/type_traits.hpp>
-// #include <boost/beast/http/serializer.hpp>
-
 #include "DwmSysLogger.hh"
 #include "DwmUnitAssert.hh"
 #include "DwmWebUtils.hh"
@@ -55,8 +52,11 @@ using namespace std;
 using namespace boost::beast;
 using namespace Dwm::WebUtils;
 
+//----------------------------------------------------------------------------
+//!  
+//----------------------------------------------------------------------------
 template<bool isRequest, class Body, class Fields>
-void print_cxx14(http::message<isRequest, Body, Fields> const& m)
+static void PrintWholeMessage(http::message<isRequest,Body,Fields> const & m)
 {
   boost::system::error_code ec;
   http::serializer<isRequest, Body, Fields> sr{m};
@@ -93,7 +93,7 @@ int main(int argc, char *argv[])
     nlohmann::json  json =
       nlohmann::json::parse(response.body(), nullptr, false);
     UnitAssert(! json.is_discarded());
-    // print_cxx14(response);
+    // PrintWholeMessage(response);
   }
   
   if (Dwm::Assertions::Total().Failed())
