@@ -12,6 +12,9 @@
 
 SHARED_LIB_VERSION="1:1:0"
 
+RELEASE_NAME_FILE=`dirname $0`/latest_release
+RELEASE_NAME=`cat ${RELEASE_NAME_FILE} 2>/dev/null`
+
 GIT_TAG=""
 GIT_VERSION=""
 SVN_TAG=""
@@ -21,14 +24,19 @@ DWM_VERSION=""
 
 DwmGetGitTag() {
     local gittag=`git describe --tags --dirty 2>/dev/null`
-    dirty=`echo "${gittag}" | awk -F '-' '{ if (NF > 2) { print "dirty"; } }'`
-    if test -z "${dirty}"; then
-	GIT_TAG="${gittag}"
-	GIT_VERSION=`echo "${gittag}" | awk -F '-' '{print $NF}'`
+    if test -z "${gittag}"; then
+	GIT_TAG="${RELEASE_NAME}"
+	GIT_VERSION=`echo ${GIT_TAG} | cut -d'-' -f2`
     else
-	fakevers=`date +%Y%m%d`
-	GIT_TAG="$1-0.0.${fakevers}"
-	GIT_VERSION="0.0.${fakevers}"
+        dirty=`echo "${gittag}" | awk -F '-' '{ if (NF > 2) { print "dirty"; } }'`
+        if test -z "${dirty}"; then
+            GIT_TAG="${gittag}"
+	    GIT_VERSION=`echo "${gittag}" | awk -F '-' '{print $NF}'`
+        else
+            fakevers=`date +%Y%m%d`
+            GIT_TAG="$1-0.0.${fakevers}"
+            GIT_VERSION="0.0.${fakevers}"
+        fi
     fi
 }
 
