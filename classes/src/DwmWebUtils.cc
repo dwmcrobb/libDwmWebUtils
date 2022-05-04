@@ -140,81 +140,6 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    static int GetHttpStatus(const Url & url)
-    {
-      int                rc = 0;
-      asio::io_context   ctx;
-      beast::tcp_stream  stream(ctx);
-      try {
-        stream.connect(resolve(ctx, url.Host(), url.Scheme()));
-        auto  response = Get(stream, url.Host(), url.AfterAuthority());
-        rc = response.result_int();
-      }
-      catch (...) {
-      }
-      beast::error_code ec;
-      stream.socket().shutdown(tcp::socket::shutdown_both, ec);
-    
-      return rc;
-    }
-
-    //------------------------------------------------------------------------
-    //!  
-    //------------------------------------------------------------------------
-    static int GetHttpsStatus(const Url & url)
-    {
-      int               rc = 0;
-      asio::io_context  ctx;
-      ssl::context      ssl_ctx{ssl::context::tls_client};
-      ssl_ctx.set_verify_mode(ssl::context::verify_peer |
-                              ssl::context::verify_fail_if_no_peer_cert);
-      ssl_ctx.set_default_verify_paths();
-      boost::certify::enable_native_https_server_verification(ssl_ctx);
-      std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
-      try {
-        stream_ptr = Connect(ctx, ssl_ctx, url.Host(), url.Scheme());
-        auto  response = Get(*stream_ptr, url.Host(), url.AfterAuthority());
-        rc = response.result_int();
-      }
-      catch (const boost::system::system_error & ex) {
-        Syslog(LOG_ERR, "Exception getting status for %s://%s%s: %s",
-               url.Scheme().c_str(), url.Host().c_str(),
-               url.AfterAuthority().c_str(), ex.what());
-      }
-      catch (...) {
-      }
-      if (stream_ptr) {
-        boost::system::error_code  ec;
-        stream_ptr->shutdown(ec);
-        stream_ptr->next_layer().close(ec);
-      }
-      return rc;
-    }
-
-    //------------------------------------------------------------------------
-    //!  
-    //------------------------------------------------------------------------
-    int GetStatus(const std::string & urlstr)
-    {
-      int  rc = 0;
-      Url  url;
-      if (url.Parse(urlstr)) {
-        if (url.Scheme() == "https") {
-          rc = GetHttpsStatus(url);
-        }
-        else if (url.Scheme() == "http") {
-          rc = GetHttpStatus(url);
-        }
-      }
-      else {
-        Syslog(LOG_ERR, "Failed to parse URL '%s'", urlstr.c_str());
-      }
-      return rc;
-    }
-
-    //------------------------------------------------------------------------
-    //!  
-    //------------------------------------------------------------------------
     bool
     GetResponseViaHttp(const Url & url,
                        http::response<http::string_body> & response)
@@ -236,20 +161,6 @@ namespace Dwm {
       return rc;
     }
     
-    //------------------------------------------------------------------------
-    //!  
-    //------------------------------------------------------------------------
-    static bool GetJsonViaHttp(const Url & url, nlohmann::json & json)
-    {
-      bool  rc = false;
-      http::response<http::string_body> response;
-      if (GetResponseViaHttp(url, response)) {
-        json = nlohmann::json::parse(response.body());
-        rc = true;
-      }
-      return rc;
-    }
-
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
@@ -287,34 +198,22 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    static bool GetJsonViaHttps(const Url & url, nlohmann::json & json)
+    static bool GetResponse(const Url & url,
+                            http::response<http::string_body> & response)
     {
       bool  rc = false;
-      asio::io_context ctx;
-      ssl::context ssl_ctx{ssl::context::tls_client};
-      ssl_ctx.set_verify_mode(ssl::context::verify_peer |
-                              ssl::context::verify_fail_if_no_peer_cert);
-      ssl_ctx.set_default_verify_paths();
-      boost::certify::enable_native_https_server_verification(ssl_ctx);
-      std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
-      try {
-        stream_ptr = Connect(ctx, ssl_ctx, url.Host(), url.Scheme());
-        auto  response = Get(*stream_ptr, url.Host(), url.AfterAuthority());
-        if (response.result_int() == 200) {
-          json = nlohmann::json::parse(response.body());
-          rc = true;
-        }
+      if (url.Scheme() == "https") {
+        rc = GetResponseViaHttps(url, response);
       }
-      catch (...) {
+      else if (url.Scheme() == "http") {
+        rc = GetResponseViaHttp(url, response);
       }
-      if (stream_ptr) {
-        boost::system::error_code  ec;
-        stream_ptr->shutdown(ec);
-        stream_ptr->next_layer().close(ec);
+      else {
+        Syslog(LOG_ERR, "Unhandled URL scheme '%s'", url.Scheme().c_str());
       }
       return rc;
     }
-
+    
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
@@ -324,14 +223,25 @@ namespace Dwm {
       bool  rc = false;
       Url  url;
       if (url.Parse(urlstr)) {
-        if (url.Scheme() == "https") {
-          rc = GetResponseViaHttps(url, response);
-        }
-        else if (url.Scheme() == "http") {
-          rc = GetResponseViaHttp(url, response);
-        }
-        else {
-          Syslog(LOG_ERR, "Unhandled URL scheme '%s'", urlstr.c_str());
+        rc = GetResponse(url, response);
+      }
+      else {
+        Syslog(LOG_ERR, "Failed to parse URL '%s'", urlstr.c_str());
+      }
+      return rc;
+    }
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    int GetStatus(const std::string & urlstr)
+    {
+      int  rc = 0;
+      Url  url;
+      if (url.Parse(urlstr)) {
+        http::response<http::string_body>  response;
+        if (GetResponse(url, response)) {
+          rc = response.result_int();
         }
       }
       else {
@@ -348,11 +258,10 @@ namespace Dwm {
       bool  rc = false;
       Url  url;
       if (url.Parse(urlstr)) {
-        if (url.Scheme() == "https") {
-          rc = GetJsonViaHttps(url, json);
-        }
-        else if (url.Scheme() == "http") {
-          rc = GetJsonViaHttp(url, json);
+        http::response<http::string_body>  response;
+        if (GetResponse(url, response)) {
+          json = nlohmann::json::parse(response.body(), nullptr, false);
+          rc = (! json.is_discarded());
         }
       }
       else {
