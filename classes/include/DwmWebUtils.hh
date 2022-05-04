@@ -66,7 +66,8 @@ namespace Dwm {
     int GetStatus(const std::string & urlstr);
 
     //------------------------------------------------------------------------
-    //!  
+    //!  Fetches the web page at the given URL @c urlstr and stores it in
+    //!  @c response.  Returns true on success, false on failure.
     //------------------------------------------------------------------------
     bool GetResponse(const std::string & urlstr,
                      http::response<http::string_body> & response);
