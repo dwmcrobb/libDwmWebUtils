@@ -43,7 +43,7 @@ ${TARDIR}/lib/libDwmWebUtils.la: ../lib/libDwmWebUtils.la
 	${LIBTOOL} --mode=install ../../install-sh -c $< $@
 
 clean:: clean-tarprep
-	${LIBTOOL} --mode=uninstall rm -f ../lib/libDwmWebUtils.la ${OBJFILES} DwmWebUtilsUrl.cc
+	${LIBTOOL} --mode=clean rm -f ../lib/libDwmWebUtils.la ${SHARED_OBJFILES} DwmWebUtilsUrl.cc
 
 distclean:: clean
 	rm -f ${OBJDEPS}
