@@ -52,7 +52,7 @@ namespace Dwm {
 
   namespace WebUtils {
 
-    using namespace boost::beast;
+    namespace http = boost::beast::http;
     
     //------------------------------------------------------------------------
     //!  Fetches the JSON at the given URL @c urlstr and stores it in @c json.
