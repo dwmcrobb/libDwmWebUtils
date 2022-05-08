@@ -62,6 +62,7 @@ namespace Dwm {
         case k_failNumURL:      rc = e_failTypeURL;                 break;
         case k_failNumConnect:  rc = e_failTypeConnect;             break;
         case k_failNumAuth:     rc = e_failTypeAuthenticateServer;  break;
+        case k_failNumGet:      rc = e_failTypeGet;                 break;
         case k_failNumJSON:     rc = e_failTypeJSON;                break;
         default:
           if ((100 <= _failNum) && (1000 > _failNum)) {
