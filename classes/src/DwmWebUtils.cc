@@ -53,20 +53,19 @@
 #include "DwmWebUtilsUrl.hh"
 #include "DwmWebUtils.hh"
 
-namespace beast = boost::beast;
-namespace asio = boost::asio;
-namespace ssl = asio::ssl;
-namespace http = boost::beast::http;
-using tcp = boost::asio::ip::tcp;
-
 namespace Dwm {
 
   namespace WebUtils {
 
+    namespace beast = boost::beast;
+    namespace asio = boost::asio;
+    namespace ssl = asio::ssl;
+    using tcp = boost::asio::ip::tcp;
+
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    tcp::resolver::results_type
+    static tcp::resolver::results_type
     resolve(asio::io_context& ctx, std::string const & hostname,
             const std::string & service)
     {
@@ -77,7 +76,7 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    tcp::socket
+    static tcp::socket
     Connect(asio::io_context & ctx, std::string const & hostname,
             const std::string & service)
     {
@@ -89,38 +88,45 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    std::unique_ptr<ssl::stream<tcp::socket>>
+    static std::unique_ptr<ssl::stream<tcp::socket>>
     Connect(asio::io_context & ctx, ssl::context & ssl_ctx,
             std::string const & hostname, const std::string & service)
     {
-      auto stream =
-        boost::make_unique<ssl::stream<tcp::socket>>(Connect(ctx, hostname,
-                                                             service),
-                                                     ssl_ctx);
-      boost::certify::set_server_hostname(*stream, hostname);
-      boost::certify::sni_hostname(*stream, hostname);
-      boost::system::error_code  ec;
+      std::unique_ptr<ssl::stream<tcp::socket>>  rc(nullptr);
       try {
-        stream->handshake(ssl::stream_base::handshake_type::client);
-      }
-      catch (std::exception & ex) {
-        Syslog(LOG_ERR, "Failed to connect to '%s:%s': %s", hostname.c_str(),
-               service.c_str(), ex.what());
-        throw;
+        tcp::socket  sock = Connect(ctx, hostname, service);
+        rc = boost::make_unique<ssl::stream<tcp::socket>>(std::move(sock),
+                                                          ssl_ctx);
       }
       catch (...) {
-        Syslog(LOG_ERR, "Failed to connect to '%s:%s'", hostname.c_str(),
-               service.c_str());
-        throw;
+        rc = nullptr;
       }
-      return stream;
+      return rc;
     }
 
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
+    static bool HttpsHandshake(ssl::stream<tcp::socket> * strm,
+                               std::string const & hostname)
+    {
+      bool  rc = false;
+      boost::certify::set_server_hostname(*strm, hostname);
+      boost::certify::sni_hostname(*strm, hostname);
+      try {
+        strm->handshake(ssl::stream_base::handshake_type::client);
+        rc = true;
+      }
+      catch (...) {
+      }
+      return rc;
+    }
+    
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
     template <typename T>
-    http::response<http::string_body>
+    static http::response<http::string_body>
     Get(T & stream, std::string_view hostname, std::string_view urlstr)
     {
       http::request<http::string_body> request;
@@ -140,33 +146,56 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    bool
+    static bool
     GetResponseViaHttp(const Url & url,
-                       http::response<http::string_body> & response)
+                       http::response<http::string_body> & response,
+                       GetFailure & failure)
     {
       bool  rc = false;
       asio::io_context ctx;
       beast::tcp_stream stream(ctx);
       try {
         stream.connect(resolve(ctx, url.Host(), url.Scheme()));
+      }
+      catch (...) {
+        failure.FailNum(GetFailure::k_failNumConnect);
+        return false;
+      }
+
+      try {
         response = Get(stream, url.Host(), url.AfterAuthority());
+        failure.FailNum(GetFailure::k_failNumNone);
         rc = true;
       }
       catch (...) {
-        Syslog(LOG_ERR, "Got exception");
+        failure.FailNum((response.result() == http::status::ok)
+                        ? GetFailure::k_failNumGet : response.result_int());
       }
+      
       beast::error_code ec;
       stream.socket().shutdown(tcp::socket::shutdown_both, ec);
     
       return rc;
     }
-    
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    static bool
+    GetResponseViaHttp(const Url & url,
+                       http::response<http::string_body> & response)
+    {
+      GetFailure  failure;
+      return GetResponseViaHttp(url, response, failure);
+    }
+
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
     static bool 
     GetResponseViaHttps(const Url & url,
-                        http::response<http::string_body> & response)
+                        http::response<http::string_body> & response,
+                        GetFailure & failure)
     {
       bool  rc = false;
       asio::io_context ctx;
@@ -178,15 +207,27 @@ namespace Dwm {
       std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
       try {
         stream_ptr = Connect(ctx, ssl_ctx, url.Host(), url.Scheme());
-        response = Get(*stream_ptr, url.Host(), url.AfterAuthority());
-        rc = true;
       }
-      catch (const std::exception & ex) {
-        Syslog(LOG_ERR, "Got exception: %s", ex.what());
-      } 
       catch (...) {
-        Syslog(LOG_ERR, "Got exception");
+        failure.FailNum(GetFailure::k_failNumConnect);
+        return false;
       }
+
+      if (HttpsHandshake(stream_ptr.get(), url.Host())) {
+        try {
+          response = Get(*stream_ptr, url.Host(), url.AfterAuthority());
+          failure.FailNum(GetFailure::k_failNumNone);
+          rc = true;
+        }
+        catch (...) {
+          failure.FailNum((response.result() == http::status::ok)
+                          ? GetFailure::k_failNumGet : response.result_int());
+        }
+      }
+      else {
+        failure.FailNum(GetFailure::k_failNumAuth);
+      }
+
       if (stream_ptr) {
         boost::system::error_code  ec;
         stream_ptr->shutdown(ec);
@@ -194,21 +235,34 @@ namespace Dwm {
       }
       return rc;
     }
+    
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    static bool 
+    GetResponseViaHttps(const Url & url,
+                        http::response<http::string_body> & response)
+    {
+      GetFailure  failure;
+      return GetResponseViaHttps(url, response, failure);
+    }
 
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
     static bool GetResponse(const Url & url,
-                            http::response<http::string_body> & response)
+                            http::response<http::string_body> & response,
+                            GetFailure & failure)
     {
       bool  rc = false;
       if (url.Scheme() == "https") {
-        rc = GetResponseViaHttps(url, response);
+        rc = GetResponseViaHttps(url, response, failure);
       }
       else if (url.Scheme() == "http") {
-        rc = GetResponseViaHttp(url, response);
+        rc = GetResponseViaHttp(url, response, failure);
       }
       else {
+        failure.FailNum(GetFailure::k_failNumURL);
         Syslog(LOG_ERR, "Unhandled URL scheme '%s'", url.Scheme().c_str());
       }
       return rc;
@@ -217,15 +271,58 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
+    static bool GetResponse(const Url & url,
+                            http::response<http::string_body> & response)
+    {
+      GetFailure  failure;
+      return GetResponse(url, response, failure);
+    }
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
     bool GetResponse(const std::string & urlstr,
-                     http::response<http::string_body> & response)
+                     http::response<http::string_body> & response,
+                     GetFailure & getFail)
     {
       bool  rc = false;
       Url  url;
       if (url.Parse(urlstr)) {
-        rc = GetResponse(url, response);
+        rc = GetResponse(url, response, getFail);
       }
       else {
+        getFail.FailNum(GetFailure::k_failNumURL);
+        Syslog(LOG_ERR, "Failed to parse URL '%s'", urlstr.c_str());
+      }
+      return rc;
+    }
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    bool GetResponse(const std::string & urlstr,
+                     http::response<http::string_body> & response)
+    {
+      GetFailure  failure;
+      return GetResponse(urlstr, response, failure);
+    }
+
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    int GetStatus(const std::string & urlstr, GetFailure & failure)
+    {
+      int  rc = -1;
+      Url  url;
+      if (url.Parse(urlstr)) {
+        http::response<http::string_body>  response;
+        if (GetResponse(url, response, failure)) {
+          rc = response.result_int();
+          failure.FailNum(GetFailure::k_failNumNone);
+        }
+      }
+      else {
+        failure.FailNum(GetFailure::k_failNumURL);
         Syslog(LOG_ERR, "Failed to parse URL '%s'", urlstr.c_str());
       }
       return rc;
@@ -236,7 +333,7 @@ namespace Dwm {
     //------------------------------------------------------------------------
     int GetStatus(const std::string & urlstr)
     {
-      int  rc = 0;
+      int  rc = -1;
       Url  url;
       if (url.Parse(urlstr)) {
         http::response<http::string_body>  response;
@@ -253,21 +350,38 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    bool GetJson(const std::string & urlstr, nlohmann::json & json)
+    bool GetJson(const std::string & urlstr, nlohmann::json & json,
+                 GetFailure & getFailure)
     {
       bool  rc = false;
       Url  url;
       if (url.Parse(urlstr)) {
         http::response<http::string_body>  response;
-        if (GetResponse(url, response)) {
+        if (GetResponse(url, response, getFailure)) {
           json = nlohmann::json::parse(response.body(), nullptr, false);
-          rc = (! json.is_discarded());
+          if (! json.is_discarded()) {
+            getFailure.FailNum(GetFailure::k_failNumNone);
+            rc = true;
+          }
+          else {
+            getFailure.FailNum(GetFailure::k_failNumJSON);
+          }
         }
       }
       else {
         Syslog(LOG_ERR, "Failed to parse URL '%s'", urlstr.c_str());
+        getFailure.FailNum(GetFailure::k_failNumURL);
       }
       return rc;
+    }
+    
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    bool GetJson(const std::string & urlstr, nlohmann::json & json)
+    {
+      GetFailure  getFailure;
+      return GetJson(urlstr, json, getFailure);
     }
 
     

@@ -48,12 +48,14 @@
 #include <boost/beast.hpp>
 #include <nlohmann/json.hpp>
 
+#include "DwmWebUtilsGetFailure.hh"
+
 namespace Dwm {
 
   namespace WebUtils {
 
     namespace http = boost::beast::http;
-    
+
     //------------------------------------------------------------------------
     //!  Fetches the JSON at the given URL @c urlstr and stores it in @c json.
     //!  Returns true on success, false on failure.
@@ -61,17 +63,42 @@ namespace Dwm {
     bool GetJson(const std::string & urlstr, nlohmann::json & json);
 
     //------------------------------------------------------------------------
-    //!  Returns the status code of the given URL @c urlstr.
+    //!  Fetches the JSON at the given URL @c urlstr and stores it in @c json.
+    //!  Returns true on success, false on failure.  On failure,
+    //!  @c getFailure can be examined for more information.
+    //------------------------------------------------------------------------
+    bool GetJson(const std::string & urlstr, nlohmann::json & json,
+                 GetFailure & getFailure);
+    
+    //------------------------------------------------------------------------
+    //!  Returns the status code of the given URL @c urlstr.  If we can't
+    //!  get a status code at all, returns -1.
     //------------------------------------------------------------------------
     int GetStatus(const std::string & urlstr);
 
+    //------------------------------------------------------------------------
+    //!  Returns the status code of the given URL @c urlstr.  If we can't
+    //!  get a status code at all, returns -1.  On failure,                
+    //!  @c getFailure can be examined for more information.
+    //------------------------------------------------------------------------
+    int GetStatus(const std::string & urlstr, GetFailure & getFailure);
+    
     //------------------------------------------------------------------------
     //!  Fetches the web page at the given URL @c urlstr and stores it in
     //!  @c response.  Returns true on success, false on failure.
     //------------------------------------------------------------------------
     bool GetResponse(const std::string & urlstr,
                      http::response<http::string_body> & response);
-    
+
+    //------------------------------------------------------------------------
+    //!  Fetches the web page at the given URL @c urlstr and stores it in
+    //!  @c response.  Returns true on success, false on failure.  On failure,
+    //!  @c getFailure can be examined for more information.
+    //------------------------------------------------------------------------
+    bool GetResponse(const std::string & urlstr,
+                     http::response<http::string_body> & response,
+                     GetFailure & getFailure);
+
   }  // namespace WebUtils
 
 }  // namespace Dwm

@@ -6,6 +6,7 @@ LTLINK       = ${LIBTOOL} --tag=CXX --mode=link ${CXX}
 DWMLIBS		= $(shell pkg-config --libs libDwm)
 INCS            = -I../include ${DWMINCS}
 OBJFILESNP	= DwmWebUtils.o \
+                  DwmWebUtilsGetFailure.o \
                   DwmWebUtilsUrl.o \
                   DwmWebUtilsVersion.o
 OBJFILES        = $(OBJFILESNP:%=../obj/%)

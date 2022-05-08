@@ -95,6 +95,11 @@ int main(int argc, char *argv[])
     UnitAssert(! json.is_discarded());
     // PrintWholeMessage(response);
   }
+
+  GetFailure  getFail;
+  if (UnitAssert(GetResponse(urlstr, response, getFail))) {
+    UnitAssert(! getFail);
+  }
   
   if (Dwm::Assertions::Total().Failed())
     Dwm::Assertions::Print(cerr, true);
