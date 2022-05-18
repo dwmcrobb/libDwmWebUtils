@@ -111,9 +111,10 @@ namespace Dwm {
                                std::string const & hostname)
     {
       bool  rc = false;
-      boost::certify::set_server_hostname(*strm, hostname);
-      boost::certify::sni_hostname(*strm, hostname);
+      assert(strm);
       try {
+        boost::certify::set_server_hostname(*strm, hostname);
+        boost::certify::sni_hostname(*strm, hostname);
         strm->handshake(ssl::stream_base::handshake_type::client);
         rc = true;
       }
@@ -207,6 +208,10 @@ namespace Dwm {
       std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
       try {
         stream_ptr = Connect(ctx, ssl_ctx, url.Host(), url.Scheme());
+        if (! stream_ptr) {
+          failure.FailNum(GetFailure::k_failNumConnect);
+          return false;
+        }
       }
       catch (...) {
         failure.FailNum(GetFailure::k_failNumConnect);
