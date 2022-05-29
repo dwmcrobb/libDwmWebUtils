@@ -85,7 +85,7 @@ static void PrintWholeMessage(http::message<isRequest,Body,Fields> const & m)
 //----------------------------------------------------------------------------
 int main(int argc, char *argv[])
 {
-  Dwm::SysLogger::Open("TestGetResponse", LOG_PID|LOG_PERROR, LOG_USER);
+  // Dwm::SysLogger::Open("TestGetResponse", LOG_PID|LOG_PERROR, LOG_USER);
 
   string  urlstr("https://api.weather.gov/stations/KPTK/observations/latest");
   http::response<http::string_body>  response;

@@ -97,9 +97,12 @@ namespace Dwm {
         tcp::socket  sock = Connect(ctx, hostname, service);
         rc = boost::make_unique<ssl::stream<tcp::socket>>(std::move(sock),
                                                           ssl_ctx);
-      }
+        Syslog(LOG_INFO, "Connected to %s:%s", hostname.c_str(),                                                       
+               service.c_str());                                                                                                   }
       catch (...) {
         rc = nullptr;
+        Syslog(LOG_ERR, "Failed to connect to %s:%s", hostname.c_str(),
+               service.c_str());
       }
       return rc;
     }
@@ -119,6 +122,7 @@ namespace Dwm {
         rc = true;
       }
       catch (...) {
+        Syslog(LOG_ERR, "HTTPS handshake with %s failed", hostname.c_str());
       }
       return rc;
     }
@@ -156,7 +160,7 @@ namespace Dwm {
       asio::io_context ctx;
       beast::tcp_stream stream(ctx);
       try {
-        stream.connect(resolve(ctx, url.Host(), url.Scheme()));
+        stream.connect(resolve(ctx, url.Host(), std::to_string(url.Port())));
       }
       catch (...) {
         failure.FailNum(GetFailure::k_failNumConnect);
@@ -212,7 +216,8 @@ namespace Dwm {
       boost::certify::enable_native_https_server_verification(ssl_ctx);
       std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
       try {
-        stream_ptr = Connect(ctx, ssl_ctx, url.Host(), url.Scheme());
+        stream_ptr = Connect(ctx, ssl_ctx, url.Host(),
+                             std::to_string(url.Port()));
         if (! stream_ptr) {
           failure.FailNum(GetFailure::k_failNumConnect);
           return false;
