@@ -195,13 +195,18 @@ namespace Dwm {
     static bool 
     GetResponseViaHttps(const Url & url,
                         http::response<http::string_body> & response,
-                        GetFailure & failure)
+                        GetFailure & failure, bool verifyCertificate)
     {
       bool  rc = false;
       asio::io_context ctx;
       ssl::context ssl_ctx{ssl::context::tls_client};
-      ssl_ctx.set_verify_mode(ssl::context::verify_peer |
-                              ssl::context::verify_fail_if_no_peer_cert);
+      if (verifyCertificate) {
+        ssl_ctx.set_verify_mode(ssl::context::verify_peer |
+                                ssl::context::verify_fail_if_no_peer_cert);
+      }
+      else {
+        ssl_ctx.set_verify_mode(ssl::verify_none);
+      }
       ssl_ctx.set_default_verify_paths();
       boost::certify::enable_native_https_server_verification(ssl_ctx);
       std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
@@ -241,10 +246,11 @@ namespace Dwm {
     //------------------------------------------------------------------------
     static bool 
     GetResponseViaHttps(const Url & url,
-                        http::response<http::string_body> & response)
+                        http::response<http::string_body> & response,
+                        bool verifyCertificate)
     {
       GetFailure  failure;
-      return GetResponseViaHttps(url, response, failure);
+      return GetResponseViaHttps(url, response, failure, verifyCertificate);
     }
 
     //------------------------------------------------------------------------
@@ -252,11 +258,11 @@ namespace Dwm {
     //------------------------------------------------------------------------
     static bool GetResponse(const Url & url,
                             http::response<http::string_body> & response,
-                            GetFailure & failure)
+                            GetFailure & failure, bool verifyCertificate)
     {
       bool  rc = false;
       if (url.Scheme() == "https") {
-        rc = GetResponseViaHttps(url, response, failure);
+        rc = GetResponseViaHttps(url, response, failure, verifyCertificate);
       }
       else if (url.Scheme() == "http") {
         rc = GetResponseViaHttp(url, response, failure);
@@ -272,10 +278,11 @@ namespace Dwm {
     //!  
     //------------------------------------------------------------------------
     static bool GetResponse(const Url & url,
-                            http::response<http::string_body> & response)
+                            http::response<http::string_body> & response,
+                            bool verifyCertificate)
     {
       GetFailure  failure;
-      return GetResponse(url, response, failure);
+      return GetResponse(url, response, failure, verifyCertificate);
     }
 
     //------------------------------------------------------------------------
@@ -283,12 +290,12 @@ namespace Dwm {
     //------------------------------------------------------------------------
     bool GetResponse(const std::string & urlstr,
                      http::response<http::string_body> & response,
-                     GetFailure & getFail)
+                     GetFailure & getFail, bool verifyCertificate)
     {
       bool  rc = false;
       Url  url;
       if (url.Parse(urlstr)) {
-        rc = GetResponse(url, response, getFail);
+        rc = GetResponse(url, response, getFail, verifyCertificate);
       }
       else {
         getFail.FailNum(GetFailure::k_failNumURL);
@@ -301,22 +308,24 @@ namespace Dwm {
     //!  
     //------------------------------------------------------------------------
     bool GetResponse(const std::string & urlstr,
-                     http::response<http::string_body> & response)
+                     http::response<http::string_body> & response,
+                     bool verifyCertificate)
     {
       GetFailure  failure;
-      return GetResponse(urlstr, response, failure);
+      return GetResponse(urlstr, response, failure, verifyCertificate);
     }
 
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    int GetStatus(const std::string & urlstr, GetFailure & failure)
+    int GetStatus(const std::string & urlstr, GetFailure & failure,
+                  bool verifyCertificate)
     {
       int  rc = -1;
       Url  url;
       if (url.Parse(urlstr)) {
         http::response<http::string_body>  response;
-        if (GetResponse(url, response, failure)) {
+        if (GetResponse(url, response, failure, verifyCertificate)) {
           rc = response.result_int();
           failure.FailNum(GetFailure::k_failNumNone);
         }
@@ -331,13 +340,13 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    int GetStatus(const std::string & urlstr)
+    int GetStatus(const std::string & urlstr, bool verifyCertificate)
     {
       int  rc = -1;
       Url  url;
       if (url.Parse(urlstr)) {
         http::response<http::string_body>  response;
-        if (GetResponse(url, response)) {
+        if (GetResponse(url, response, verifyCertificate)) {
           rc = response.result_int();
         }
       }
@@ -351,13 +360,13 @@ namespace Dwm {
     //!  
     //------------------------------------------------------------------------
     bool GetJson(const std::string & urlstr, nlohmann::json & json,
-                 GetFailure & getFailure)
+                 GetFailure & getFailure, bool verifyCertificate)
     {
       bool  rc = false;
       Url  url;
       if (url.Parse(urlstr)) {
         http::response<http::string_body>  response;
-        if (GetResponse(url, response, getFailure)) {
+        if (GetResponse(url, response, getFailure, verifyCertificate)) {
           json = nlohmann::json::parse(response.body(), nullptr, false);
           if (! json.is_discarded()) {
             getFailure.FailNum(GetFailure::k_failNumNone);
@@ -378,10 +387,11 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    bool GetJson(const std::string & urlstr, nlohmann::json & json)
+    bool GetJson(const std::string & urlstr, nlohmann::json & json,
+                 bool verifyCertificate)
     {
       GetFailure  getFailure;
-      return GetJson(urlstr, json, getFailure);
+      return GetJson(urlstr, json, getFailure, verifyCertificate);
     }
 
     

@@ -60,44 +60,57 @@ namespace Dwm {
     //!  Fetches the JSON at the given URL @c urlstr and stores it in @c json.
     //!  Returns true on success, false on failure.
     //------------------------------------------------------------------------
-    bool GetJson(const std::string & urlstr, nlohmann::json & json);
+    bool GetJson(const std::string & urlstr, nlohmann::json & json,
+                 bool verifyCertificate = true);
 
     //------------------------------------------------------------------------
     //!  Fetches the JSON at the given URL @c urlstr and stores it in @c json.
     //!  Returns true on success, false on failure.  On failure,
-    //!  @c getFailure can be examined for more information.
+    //!  @c getFailure can be examined for more information.  If @c urlstr is
+    //!  an https URL, will verify the server's certificate unless
+    //!  @c verifyCertificate is @c false.
     //------------------------------------------------------------------------
     bool GetJson(const std::string & urlstr, nlohmann::json & json,
-                 GetFailure & getFailure);
+                 GetFailure & getFailure, bool verifyCertificate = true);
     
     //------------------------------------------------------------------------
     //!  Returns the status code of the given URL @c urlstr.  If we can't
-    //!  get a status code at all, returns -1.
+    //!  get a status code at all, returns -1.  If @c urlstr is an https URL,
+    //!  will verify the server's certificate unless @c verifyCertificate is
+    //!  @c false.                   
     //------------------------------------------------------------------------
-    int GetStatus(const std::string & urlstr);
+    int GetStatus(const std::string & urlstr, bool verifyCertificate = true);
 
     //------------------------------------------------------------------------
     //!  Returns the status code of the given URL @c urlstr.  If we can't
-    //!  get a status code at all, returns -1.  On failure,                
-    //!  @c getFailure can be examined for more information.
+    //!  get a status code at all, returns -1.  On failure, @c getFailure can
+    //!  be examined for more information.
+    //!  If @c urlstr is an https URL, will verify the server's   
+    //!  certificate unless @c verifyCertificate is @c false.
     //------------------------------------------------------------------------
-    int GetStatus(const std::string & urlstr, GetFailure & getFailure);
+    int GetStatus(const std::string & urlstr, GetFailure & getFailure,
+                  bool verifyCertificate = true);
     
     //------------------------------------------------------------------------
     //!  Fetches the web page at the given URL @c urlstr and stores it in
-    //!  @c response.  Returns true on success, false on failure.
+    //!  @c response.  If @c urlstr is an https URL, will verify the server's
+    //!  certificate unless @c verifyCertificate is @c false.  Returns true
+    //!  on success, false on failure.
     //------------------------------------------------------------------------
     bool GetResponse(const std::string & urlstr,
-                     http::response<http::string_body> & response);
+                     http::response<http::string_body> & response,
+                     bool verifyCertificate = true);
 
     //------------------------------------------------------------------------
     //!  Fetches the web page at the given URL @c urlstr and stores it in
-    //!  @c response.  Returns true on success, false on failure.  On failure,
+    //!  @c response.  If @c urlstr is an https URL, will verify the
+    //!  server's certificate unless @c verifyCertificate is @c false.
+    //!  Returns true on success, false on failure.  On failure,
     //!  @c getFailure can be examined for more information.
     //------------------------------------------------------------------------
     bool GetResponse(const std::string & urlstr,
                      http::response<http::string_body> & response,
-                     GetFailure & getFailure);
+                     GetFailure & getFailure, bool verifyCertificate = true);
 
   }  // namespace WebUtils
 
