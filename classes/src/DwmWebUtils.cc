@@ -200,15 +200,15 @@ namespace Dwm {
     //------------------------------------------------------------------------
     static void InitializeSSLContext(ssl::context & sslctx, bool verifyCert)
     {
-      if (verifyCertificate) {
-        ssl_ctx.set_verify_mode(ssl::context::verify_peer |
-                                ssl::context::verify_fail_if_no_peer_cert);
+      if (verifyCert) {
+        sslctx.set_verify_mode(ssl::context::verify_peer |
+                               ssl::context::verify_fail_if_no_peer_cert);
       }
       else {
-        ssl_ctx.set_verify_mode(ssl::verify_none);
+        sslctx.set_verify_mode(ssl::verify_none);
       }
-      ssl_ctx.set_default_verify_paths();
-      boost::certify::enable_native_https_server_verification(ssl_ctx);
+      sslctx.set_default_verify_paths();
+      boost::certify::enable_native_https_server_verification(sslctx);
       return;
     }
     
