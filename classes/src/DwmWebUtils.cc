@@ -97,8 +97,9 @@ namespace Dwm {
         tcp::socket  sock = Connect(ctx, hostname, service);
         rc = boost::make_unique<ssl::stream<tcp::socket>>(std::move(sock),
                                                           ssl_ctx);
-        Syslog(LOG_INFO, "Connected to %s:%s", hostname.c_str(),                                                       
-               service.c_str());                                                                                                   }
+        Syslog(LOG_INFO, "Connected to %s:%s", hostname.c_str(),
+               service.c_str());
+      }
       catch (...) {
         rc = nullptr;
         Syslog(LOG_ERR, "Failed to connect to %s:%s", hostname.c_str(),
@@ -197,14 +198,8 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    static bool 
-    GetResponseViaHttps(const Url & url,
-                        http::response<http::string_body> & response,
-                        GetFailure & failure, bool verifyCertificate)
+    static void InitializeSSLContext(ssl::context & sslctx, bool verifyCert)
     {
-      bool  rc = false;
-      asio::io_context ctx;
-      ssl::context ssl_ctx{ssl::context::tls_client};
       if (verifyCertificate) {
         ssl_ctx.set_verify_mode(ssl::context::verify_peer |
                                 ssl::context::verify_fail_if_no_peer_cert);
@@ -214,6 +209,22 @@ namespace Dwm {
       }
       ssl_ctx.set_default_verify_paths();
       boost::certify::enable_native_https_server_verification(ssl_ctx);
+      return;
+    }
+    
+    //------------------------------------------------------------------------
+    //!  
+    //------------------------------------------------------------------------
+    static bool 
+    GetResponseViaHttps(const Url & url,
+                        http::response<http::string_body> & response,
+                        GetFailure & failure, bool verifyCertificate)
+    {
+      bool  rc = false;
+      asio::io_context ctx;
+      ssl::context ssl_ctx{ssl::context::tls_client};
+      InitializeSSLContext(ssl_ctx, verifyCertificate);
+
       std::unique_ptr<ssl::stream<tcp::socket>>  stream_ptr;
       try {
         stream_ptr = Connect(ctx, ssl_ctx, url.Host(),
