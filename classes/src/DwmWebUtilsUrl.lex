@@ -50,7 +50,7 @@
 
 m_alpha    [A-Za-z]
 m_digit    [0-9]
-m_scheme   {m_alpha}({m_alpha}|{m_digit}|[+\-.])*
+m_scheme   {m_alpha}({m_alpha}|{m_digit}|[+\-\.])*
 m_port     [0-9]{1,5}
 m_hexdig   [0-9A-Fa-f]
 m_ip4octet [0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5]
