@@ -20,6 +20,8 @@ typedef struct {
 } TestData_t;
 
 static TestData_t goodUrls[] = {
+  { "file:///usr/local/etc/rdap_ipv4.json",
+    "file", "", "", 0, "/usr/local/etc/rdap_ipv4.json", "", "" },
   { "http://foo.com/blah_blah",
     "http", "", "foo.com", 80, "/blah_blah", "", "" },
   { "http://foo.com/blah_blah/",
