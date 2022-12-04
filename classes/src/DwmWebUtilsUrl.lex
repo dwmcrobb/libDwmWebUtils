@@ -262,6 +262,9 @@ namespace Dwm {
             }
           }
         }
+        else if (_scheme == "file") {
+          rc = true;
+        }
       }
 
       url_lex_destroy(scanner);
@@ -306,7 +309,9 @@ namespace Dwm {
       if (! _userinfo.empty()) {
         rc += _userinfo + '@';
       }
-      rc += _host + ':' + std::to_string(_port);
+      if (! _host.empty()) {
+        rc += _host + ':' + std::to_string(_port);
+      }
       rc += AfterAuthority();
       return rc;
     }
