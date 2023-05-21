@@ -39,8 +39,6 @@
 //!  \brief Dwm::WebUtils function implementations
 //---------------------------------------------------------------------------
 
-#define BOOST_BEAST_USE_STD_STRING_VIEW
-
 #include <iostream>
 #include <regex>
 #include <string_view>

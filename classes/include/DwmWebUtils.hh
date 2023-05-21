@@ -42,8 +42,6 @@
 #ifndef _DWMWEBUTILS_HH_
 #define _DWMWEBUTILS_HH_
 
-#define BOOST_BEAST_USE_STD_STRING_VIEW
-
 #include <string>
 #include <boost/beast.hpp>
 #include <nlohmann/json.hpp>
