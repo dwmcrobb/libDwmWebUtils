@@ -1,0 +1,6 @@
+2023-05-21  dwm  <dwm@mcplex.net>
+
+	* tagged as libDwmWebUtils-0.1.17
+
+	* classes/include/DwmWebUtils.hh, classes/src/DwmWebUtils.cc:
+	Drop BOOST_BEAST_USE_STD_STRING_VIEW
