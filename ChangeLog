@@ -1,7 +1,13 @@
+2023-10-23  dwm  <dwm@mcplex.net>
+
+	* tagged as libDwmWebUtils-0.1.19
+
+	* Deal with boost moving in recent MacPorts.
+
 2023-06-24  dwm  <dwm@mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.18
-	
+
 	* classes/include/DwmWebUtils.hh:
 	Bring back BOOST_BEAST_USE_STD_STRING_VIEW
 

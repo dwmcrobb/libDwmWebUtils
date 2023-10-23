@@ -787,75 +787,57 @@ define(DWM_CHECK_LIBSTDCPPFS,[
 ])
 
 dnl #------------------------------------------------------------------------
-define(DWM_CHECK_BOOSTASIO,[
-  AC_MSG_CHECKING([for Boost asio])
+define(DWM_COMPILE_BOOSTASIO,[
   AC_LANG_PUSH(C++)
   prev_CPPFLAGS="$CXXFLAGS"
+  if [[ -n "$1" ]]; then
+    CXXFLAGS="$CXXFLAGS -I[$1]/include"
+  fi
   AC_COMPILE_IFELSE(
-    [
-      AC_LANG_PROGRAM(
-        [#include <boost/asio.hpp>],
-        [boost::asio::ip::tcp::iostream  tcpStream;])
+    [AC_LANG_PROGRAM(
+      [[#include <boost/asio.hpp>]],
+      [[boost::asio::ip::tcp::iostream  tcpStream;]])
     ],
-    [
-      AC_MSG_RESULT(found)
-      AC_DEFINE(HAVE_BOOSTASIO)
-      BOOSTDIR=""
-      BOOSTINC=""
-      BOOSTLIBS="-lboost_iostreams -lboost_system"
-    ],
-    [
-      CXXFLAGS="$CXXFLAGS -I/usr/local/include"
-      AC_COMPILE_IFELSE(
-        [
-          AC_LANG_PROGRAM(
-            [#include <boost/asio.hpp>],
-            [boost::asio::ip::tcp::iostream  tcpStream;]
-          )
-        ],
-        [
-          AC_MSG_RESULT(/usr/local)
-          AC_DEFINE(HAVE_BOOSTASIO)
-          BOOSTDIR=/usr/local
-	  BOOSTINC=-I/usr/local/include
-	  BOOSTLIBS="-L/usr/local/lib -lboost_iostreams -lboost_system"
-	],
-        [
-          CXXFLAGS="$prev_CPPFLAGS"
-          CXXFLAGS="$CXXFLAGS -I/opt/local/include"
-          AC_COMPILE_IFELSE(
-	    [
-	      AC_LANG_PROGRAM(
-                [#include <boost/asio.hpp>],
-	        [boost::asio::ip::tcp::iostream tcpStream;]
-	      )
-	    ],
-            [
-	      AC_MSG_RESULT(/opt/local)
-              AC_DEFINE(HAVE_BOOSTASIO)
-	      BOOSTDIR=/opt/local
-	      BOOSTINC=-I/opt/local/include
-	      BOOSTLIBS="-L/opt/local/lib -lboost_iostreams -lboost_system"
-	    ],
-            [
-	      AC_MSG_RESULT(no)
-              echo Boost asio is required\!\!
-              exit 1
-	    ]
-	  )
-        ]
-      )
-    ]
+    [BOOSTDIR="$1"],
+    [BOOSTDIR="none"
+     CXXFLAGS="$prev_CPPFLAGS"]
   )
-  CXXFLAGS="$prev_CPPFLAGS"
   AC_LANG_POP()
   if [[ -f ${BOOSTDIR}/lib/libboost_system-mt.dylib ]]; then
     BOOSTLIBS="-L${BOOSTDIR}/lib -lboost_iostreams-mt -lboost_system-mt"
   fi
-  AC_SUBST(BOOSTDIR)
-  AC_SUBST(BOOSTINC)
-  AC_SUBST(BOOSTLIBS)
-  AC_SUBST(BOOSTLIBTAG)
+])
+
+dnl #------------------------------------------------------------------------
+define(DWM_CHECK_BOOSTASIO,[
+  AC_MSG_CHECKING([for Boost asio])
+  for boost_dir in "" "/usr/local" "/opt/local" "/opt/local/libexec/boost/1.81"; do
+    DWM_COMPILE_BOOSTASIO([${boost_dir}])
+    if [[ "${BOOSTDIR}" != "none" ]]; then
+      break
+    fi
+  done
+  if [[ "${BOOSTDIR}" != "none" ]]; then
+    AC_MSG_RESULT([found ${BOOSTDIR}])
+    AC_DEFINE(HAVE_BOOSTASIO)
+    if [[ -n "${BOOSTDIR}" ]]; then
+      BOOSTINC=-I${BOOSTDIR}/include
+      BOOSTLIBS="-L${BOOSTDIR}/lib"
+    fi
+    if [[ -f ${BOOSTDIR}/lib/libboost_system-mt.dylib ]]; then
+      BOOSTLIBS="${BOOSTLIBS} -lboost_iostreams-mt -lboost_system-mt"
+      BOOSTLIBTAG="-mt"
+    else
+      BOOSTLIBS="${BOOSTLIBS} -lboost_iostreams -lboost_system"
+    fi
+    AC_SUBST(BOOSTDIR)
+    AC_SUBST(BOOSTINC)
+    AC_SUBST(BOOSTLIBS)
+    AC_SUBST(BOOSTLIBTAG)
+  else
+    echo Boost asio is required\!\!
+    exit 1
+  fi
 ])
 
 dnl #-------------------------------------------------------------------------
