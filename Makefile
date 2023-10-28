@@ -23,7 +23,7 @@ freebsd-pkg: tarprep
 	pkg create -o . -r staging -m staging
 
 darwin-pkg: tarprep
-	pkgbuild --root staging --identifier com.mcplex.libDwmWebUtils --version ${VERSION} libDwmWebUtils-${VERSION}.pkg
+	pkgbuild --root staging --identifier net.mcplex.libDwmWebUtils --version ${VERSION} libDwmWebUtils-${VERSION}.pkg
 
 linux-pkg: tarprep
 	if [ ! -d staging/DEBIAN ]; then mkdir staging/DEBIAN; fi
