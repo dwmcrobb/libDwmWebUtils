@@ -527,15 +527,11 @@ define(DWM_CHECK_CPLUSPLUS_11,[
   AC_LANG_PUSH(C++)
   prev_CPPFLAGS="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS -std=c++11"
-  AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([[
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
     #include <iostream>
-    #include <vector>]],
-    [AC_LANG_SOURCE([std::vector<int> vi = { 1, 2, 3, 4 };
-     for (auto i : vi) { std::cout << i << '\n'; }])])],
-    [AC_MSG_RESULT(yes)
-     AC_DEFINE(HAVE_CPP11)],
-    [AC_MSG_RESULT(no)
+    #include <vector>]], [[std::vector<int> vi = { 1, 2, 3, 4 };
+     for (auto i : vi) { std::cout << i << '\n'; }]])],[AC_MSG_RESULT(yes)
+     AC_DEFINE(HAVE_CPP11)],[AC_MSG_RESULT(no)
      echo C++11 is required\!\!
      exit 1])
   AC_LANG_POP()
@@ -547,16 +543,11 @@ define(DWM_CHECK_CPLUSPLUS_1Z,[
   AC_LANG_PUSH(C++)
   prev_CPPFLAGS="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS -std=c++1z"
-  AC_COMPILE_IFELSE([
-    AC_LANG_PROGRAM([
-      #include <shared_mutex>
-      #include <vector>],
-      [AC_LANG_SOURCE([std::shared_mutex  mtx;
-       std::shared_lock<std::shared_mutex>  lock(mtx);])]
-     ]),
-    [AC_MSG_RESULT(yes)
-     AC_DEFINE(HAVE_CPP1Z)],
-    [AC_MSG_RESULT(no)
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <shared_mutex>
+    #include <vector>]], [[std::shared_mutex  mtx;
+     std::shared_lock<std::shared_mutex>  lock(mtx);]])],[AC_MSG_RESULT(yes)
+     AC_DEFINE(HAVE_CPP1Z)],[AC_MSG_RESULT(no)
      CXXFLAGS="$prev_CPPFLAGS"
      DWM_CHECK_CPLUSPLUS_11])
   AC_LANG_POP()
@@ -565,32 +556,51 @@ define(DWM_CHECK_CPLUSPLUS_1Z,[
 dnl #-------------------------------------------------------------------------
 define(DWM_CHECK_CPLUSPLUS_17,[
   AC_MSG_CHECKING([for C++17])
-  AC_LANG_PUSH([C++])
+  AC_LANG_PUSH(C++)
   prev_CPPFLAGS="$CXXFLAGS"
   CXXFLAGS="$CXXFLAGS -std=c++17"
-  AC_COMPILE_IFELSE(
-    [
-      AC_LANG_PROGRAM(
-        [
-          #include <shared_mutex>
-          #include <vector>
-        ],
-        [
-          std::shared_mutex  mtx;
-          std::shared_lock<std::shared_mutex>  lock(mtx);
-        ]
-      )
-    ],
-    [
-      AC_MSG_RESULT(yes)
-      AC_DEFINE(HAVE_CPP17)
-      LDFLAGS="$LDFLAGS -std=c++17"
-    ],
-    [
-      AC_MSG_RESULT(no)
-      CXXFLAGS="$prev_CPPFLAGS"
-    ]
-  )
+  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
+    #include <shared_mutex>
+    #include <vector>]], [[std::shared_mutex  mtx;
+     std::shared_lock<std::shared_mutex>  lock(mtx);]])],[AC_MSG_RESULT(yes)
+     AC_DEFINE(HAVE_CPP17)
+     AC_DEFINE(HAVE_CPP11)
+     LDFLAGS="$LDFLAGS -std=c++17"],[AC_MSG_RESULT(no)
+     CXXFLAGS="$prev_CPPFLAGS"
+     DWM_CHECK_CPLUSPLUS_1Z()])
+  AC_LANG_POP()
+])
+
+dnl #-------------------------------------------------------------------------
+define(DWM_CHECK_CPLUSPLUS_20,[
+  AC_MSG_CHECKING([for C++20])
+  AC_LANG_PUSH(C++)
+  AX_CHECK_COMPILE_FLAG([-std=c++20], [
+    AC_DEFINE(HAVE_CPP20)
+    AC_DEFINE(HAVE_CPP17)
+    AC_DEFINE(HAVE_CPP11)
+    CXXFLAGS="$CXXFLAGS -std=c++20"
+    LDFLAGS="$LDFLAGS -std=c++20"
+  ], [
+    DWM_CHECK_CPLUSPLUS_17()
+  ])
+  AC_LANG_POP()
+])
+
+dnl #-------------------------------------------------------------------------
+define(DWM_CHECK_CPLUSPLUS_23,[
+  AC_MSG_CHECKING([for C++23])
+  AC_LANG_PUSH(C++)
+  AX_CHECK_COMPILE_FLAG([-std=c++23], [
+    AC_DEFINE(HAVE_CPP23)
+    AC_DEFINE(HAVE_CPP20)
+    AC_DEFINE(HAVE_CPP17)
+    AC_DEFINE(HAVE_CPP11)
+    CXXFLAGS="$CXXFLAGS -std=c++23"
+    LDFLAGS="$LDFLAGS -std=c++23"
+  ], [
+    DWM_CHECK_CPLUSPLUS_20()
+  ])
   AC_LANG_POP()
 ])
 
