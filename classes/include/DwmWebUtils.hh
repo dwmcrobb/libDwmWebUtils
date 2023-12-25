@@ -43,7 +43,7 @@
 #define _DWMWEBUTILS_HH_
 
 #include <string>
-#define BOOST_BEAST_USE_STD_STRING_VIEW
+// #define BOOST_BEAST_USE_STD_STRING_VIEW  // deprecated
 #include <boost/beast.hpp>
 #include <nlohmann/json.hpp>
 
