@@ -1,9 +1,19 @@
+2023-12-25  Daniel W. McRobb  <dwm@kiva.mcplex.net>
+
+	* tagged as libDwmWebUtils-0.1.21
+
+	* classes/include/DwmWebUtils.hh:
+	Don't define BOOST_BEAST_USE_STD_STRING_VIEW; it is deprecated.
+	
+	* configure, configure.ac, dwm.m4, ax_check_compile_flag.m4:
+	Use C++20.
+
 2023-10-27  Daniel McRobb  <dwm@spark.mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.20
 
-	* Makefile: use correct identifier when building package on macOS:
-	net.mcplex.libDwmWebUtils
+	* Makefile: use correct identifier when building package on macOS
+	(net.mcplex.libDwmWebUtils)
 
 2023-10-23  dwm  <dwm@mcplex.net>
 
