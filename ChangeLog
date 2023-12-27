@@ -1,10 +1,15 @@
+2023-12-27  Daniel McRobb  <dwm@spark.mcplex.net>
+
+	* classes/include/DwmWebUtils.hh: Ubuntu 22.04 LTS repository has
+	boost 1.74 (old).  Work around it.
+
 2023-12-25  Daniel W. McRobb  <dwm@kiva.mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.21
 
 	* classes/include/DwmWebUtils.hh:
 	Don't define BOOST_BEAST_USE_STD_STRING_VIEW; it is deprecated.
-	
+
 	* configure, configure.ac, dwm.m4, ax_check_compile_flag.m4:
 	Use C++20.
 
