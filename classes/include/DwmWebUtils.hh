@@ -43,7 +43,10 @@
 #define _DWMWEBUTILS_HH_
 
 #include <string>
-// #define BOOST_BEAST_USE_STD_STRING_VIEW  // deprecated
+#include <boost/version.hpp>
+#if (BOOST_VERSION < 108000)
+  #define BOOST_BEAST_USE_STD_STRING_VIEW // deprecated with newer boost
+#endif
 #include <boost/beast.hpp>
 #include <nlohmann/json.hpp>
 
