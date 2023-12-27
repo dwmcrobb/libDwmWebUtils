@@ -1,4 +1,6 @@
-2023-12-27  Daniel McRobb  <dwm@spark.mcplex.net>
+2023-12-27  Daniel McRobb  <dwm@thrip.mcplex.net>
+
+	* tagged as libDwmWebUtils-0.1.22
 
 	* classes/include/DwmWebUtils.hh: Ubuntu 22.04 LTS repository has
 	boost 1.74 (old).  Work around it.
