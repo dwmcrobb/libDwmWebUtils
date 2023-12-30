@@ -31,7 +31,6 @@ case $host_os in
     CXXFLAGS="-O2"
     KVMLIB=""
     LDFLAGS="$LDFLAGS"
-    AC_CHECK_LIB(procps, readproctab, [OSLIBS+=" -lprocps"], [exit 1])
     DEBARCH=`dpkg --print-architecture`
     AC_SUBST(DEBARCH)
     ;;
@@ -52,7 +51,6 @@ dnl  Check for C++20
 DWM_CHECK_CPLUSPLUS_20
 
 DWM_CHECK_NEED_LIBATOMIC
-DWM_CHECK_NEED_LIBRT
 
 AC_SUBST(KVMLIB)
 AC_SUBST(LIBTOOL)
@@ -74,12 +72,10 @@ AC_SUBST(LDFLAGS)
 AC_SUBST(PCAPINC)
 AC_SUBST(PCAPLIB)
 
-DWM_CHECK_STRTOF()
-
 DWM_PREREQ_PATH(htmlman,share/htmlman,[HTML manpage path])
 
-DWM_SET_PKGVARS(libDwm,[libDwm-0.0.0])
-DWM_GET_TAG([libDwm])
+DWM_SET_PKGVARS(libDwmWebUtils,[libDwmWebUtils-0.0.0])
+DWM_GET_TAG([libDwmWebUtils])
 
 AC_CHECK_PROG([MANDOC], [mandoc], [mandoc], [])
 

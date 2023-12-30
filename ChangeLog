@@ -1,8 +1,11 @@
 2023-12-29  Daniel McRobb  <dwm@spark.mcplex.net>
 
+	* configure, configure.ac, dwm.m4: Remove some old cruft, tweak
+	DWM_REQUIRES_DWMPKG macro message.
+
 	* tagged as libDwmWebUtils-0.1.23
-	
-	* configure configure.ac dwm.m4: Add and use DWM_REQUIRES_DWMPKG
+
+	* configure, configure.ac, dwm.m4: Add and use DWM_REQUIRES_DWMPKG
 	macro.
 
 2023-12-27  Daniel McRobb  <dwm@thrip.mcplex.net>
