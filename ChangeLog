@@ -1,5 +1,7 @@
 2023-12-29  Daniel McRobb  <dwm@spark.mcplex.net>
 
+	* tagged as libDwmWebUtils-0.1.24
+
 	* configure, configure.ac, dwm.m4: Remove some old cruft, tweak
 	DWM_REQUIRES_DWMPKG macro message.
 
