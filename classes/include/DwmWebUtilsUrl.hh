@@ -1,7 +1,7 @@
 //===========================================================================
 // @(#) $DwmPath$
 //===========================================================================
-//  Copyright (c) Daniel W. McRobb 2022
+//  Copyright (c) Daniel W. McRobb 2022, 2024
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -50,65 +50,132 @@ namespace Dwm {
   namespace WebUtils {
 
     //------------------------------------------------------------------------
-    //!  
+    //!  A simple encapsulation of a URL.
     //------------------------------------------------------------------------
     class Url
     {
     public:
+      //----------------------------------------------------------------------
+      //!  Default constructor
+      //----------------------------------------------------------------------
       Url() = default;
 
+      //----------------------------------------------------------------------
+      //!  Convenience constructor to Construct from a string.  Throws
+      //!  std::invalid_argument if @c url can't be parsed.
+      //----------------------------------------------------------------------
       Url(const std::string & url);
 
+      //----------------------------------------------------------------------
+      //!  Parses @c url and stores the parsed components in @c this.
+      //!  Returns true on success, false on failure.
+      //----------------------------------------------------------------------
       bool Parse(const std::string & url);
 
+      //----------------------------------------------------------------------
+      //!  Clears the Url (sets the contents the same as the default
+      //!  constructor).
+      //----------------------------------------------------------------------
       void Clear();
     
+      //----------------------------------------------------------------------
+      //!  Returns the scheme portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Scheme() const
       { return _scheme; }
 
+      //----------------------------------------------------------------------
+      //!  Sets and returns the scheme portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Scheme(const std::string & scheme)
       { return _scheme = scheme; }
 
+      //----------------------------------------------------------------------
+      //!  Returns the user info portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & UserInfo() const
       { return _userinfo; }
 
+      //----------------------------------------------------------------------
+      //!  Sets and returns the user info portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & UserInfo(const std::string & userinfo)
       { return _userinfo = userinfo; }
 
+      //----------------------------------------------------------------------
+      //!  Returs the host portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Host() const
       { return _host; }
     
+      //----------------------------------------------------------------------
+      //!  Sets and returns the host portion of the Url.
+      //----------------------------------------------------------------------
       const std::string &	Host(const std::string & host)
       { return _host = host; }
     
+      //----------------------------------------------------------------------
+      //!  Returns the port portion of the Url.
+      //----------------------------------------------------------------------
       uint16_t Port() const
       { return _port; }
     
+      //----------------------------------------------------------------------
+      //!  Sets and returns the port portion of the Url.
+      //----------------------------------------------------------------------
       uint16_t Port(uint16_t port)
       { return _port = port; }
     
+      //----------------------------------------------------------------------
+      //!  Returns the path portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Path() const
       { return _path; }
     
+      //----------------------------------------------------------------------
+      //!  Sets and returns the path portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Path(const std::string & path)
       { return _path = path; }
     
+      //----------------------------------------------------------------------
+      //!  Returns the query portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Query() const
       { return _query; }
     
+      //----------------------------------------------------------------------
+      //!  Sets and returns the query portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Query(const std::string & query)
       { return _query = query; }
     
+      //----------------------------------------------------------------------
+      //!  Returns the fragment portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Fragment() const
       { return _fragment; }
     
+      //----------------------------------------------------------------------
+      //!  Sets and returns the fragment portion of the Url.
+      //----------------------------------------------------------------------
       const std::string & Fragment(const std::string & fragment)
       { return _fragment = fragment; }
 
+      //----------------------------------------------------------------------
+      //!  Convenience member that returns a string of the form
+      //!  'path?query#fragment'
+      //----------------------------------------------------------------------
       std::string AfterAuthority() const;
 
+      //----------------------------------------------------------------------
+      //!  Returns the Url as a string.
+      //----------------------------------------------------------------------
       std::string to_string() const;
 
+      //----------------------------------------------------------------------
+      //!  Equality comparison operator
+      //----------------------------------------------------------------------
       bool operator == (const Url & url) const;
       
     private:
@@ -120,7 +187,7 @@ namespace Dwm {
       std::string   _query;
       std::string   _fragment;
 
-      static bool HasIllegalHypens(const std::string & host);
+      static bool HasIllegalHyphens(const std::string & host);
       static bool HasAlpha(const std::string & host);
       static bool IsAddress(const std::string & host);
       static bool IsZeroAddress(const std::string & host);

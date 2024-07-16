@@ -2,7 +2,7 @@
   //=========================================================================
   // @(#) $DwmPath$
   //=========================================================================
-  //  Copyright (c) Daniel W. McRobb 2022
+  //  Copyright (c) Daniel W. McRobb 2022, 2024
   //  All rights reserved.
   //
   //  Redistribution and use in source and binary forms, with or without
@@ -42,6 +42,7 @@
 
   #include <iostream>
   #include <regex>
+  #include <stdexcept>
   #include <unordered_map>
   #include <boost/asio.hpp>
   
@@ -146,7 +147,7 @@ namespace Dwm {
     //------------------------------------------------------------------------
     //!  
     //------------------------------------------------------------------------
-    bool Url::HasIllegalHypens(const std::string & host)
+    bool Url::HasIllegalHyphens(const std::string & host)
     {
       std::regex   rgx("([\\-][\\-])|([\\-][\\.])|([\\-]$)");
       std::smatch  sm;
@@ -223,7 +224,9 @@ namespace Dwm {
     //------------------------------------------------------------------------
     Url::Url(const std::string & url)
     {
-      Parse(url);
+      if (! Parse(url)) {
+        throw std::invalid_argument("Invalid URL");
+      }
     }
 
     //------------------------------------------------------------------------
@@ -255,7 +258,7 @@ namespace Dwm {
               }
             }
             else {
-              if ((! HasIllegalHypens(_host))
+              if ((! HasIllegalHyphens(_host))
                   && HasAlpha(_host)) {
                 rc = true;
               }
