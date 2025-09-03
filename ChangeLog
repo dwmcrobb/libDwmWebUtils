@@ -1,3 +1,11 @@
+2025-09-03  dwm  <dwm@ria.mcplex.net>
+
+	* tagged as libDwmWebUtils-0.1.26
+
+	* dwm.m4, configure: Look for asio in /opt/local/libexec/boost/1.88
+	instead of /opt/local/libexec/boost/1.81 (relevant for MacPorts on
+	macOS).
+
 2024-07-16  Daniel W. McRobb  <dwm@spark.mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.25
