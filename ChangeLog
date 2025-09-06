@@ -1,3 +1,11 @@
+2025-09-05  Daniel W. McRobb  <dwm@kiva.mcplex.net>
+
+	* tagged as libDwmWebUtils-0.1.27
+
+	* packaging/fbsd_manifest.in: Update version of libDwm dependency.
+
+	* configure, configure.ac, dwm.m4: Update for FreeBSD 14.
+
 2025-09-03  dwm  <dwm@ria.mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.26
