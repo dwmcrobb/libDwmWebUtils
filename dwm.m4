@@ -378,7 +378,7 @@ define(DWM_SET_CXX_SHARED_FLAGS,[
       CXX_SHARED_FLAGS="-fPIC"
       LD_SHARED_FLAGS="-shared"
       ;;
-    freebsd1[[0123]]*)
+    freebsd1[[01234]]*)
       CXX_SHARED_FLAGS="-fPIC"
       LD_SHARED_FLAGS="-shared"
       ;;
@@ -412,7 +412,7 @@ define(DWM_SET_PTHREADFLAGS,[
       PTHREADCXXFLAGS="${PTHREADS_OS} ${PTHREADS_STL}"
       PTHREADLDFLAGS="-pthread"
       ;;
-    freebsd1[[0123]]*)
+    freebsd1[[01234]]*)
       AC_DEFINE(_THREAD_SAFE)
       AC_DEFINE(_PTHREADS)
       PTHREADS_OS="-pthread -D_THREAD_SAFE"

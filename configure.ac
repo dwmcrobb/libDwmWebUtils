@@ -23,7 +23,7 @@ case $host_os in
     CXXFLAGS="-O2"
     LDFLAGS="-static"
     ;;
-  freebsd1[[0123]]*)
+  freebsd1[[01234]]*)
     CXXFLAGS="-O2"
     LDFLAGS="-static"
     ;;
