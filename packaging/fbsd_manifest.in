@@ -10,7 +10,7 @@ licenselogic: "single"
 licenses: ["BSD"]
 categories: ["devel"]
 deps: {
-  "libDwm":{"origin":"devel/libDwm","version":"0.9.7"}
+  "libDwm":{"origin":"devel/libDwm","version":"0.9.56"}
 }
 scripts: {
   post-install: "#!/bin/sh\nldconfig @prefix@/lib\n"
