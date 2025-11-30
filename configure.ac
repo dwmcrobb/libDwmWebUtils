@@ -56,6 +56,8 @@ AC_SUBST(KVMLIB)
 AC_SUBST(LIBTOOL)
 AC_SUBST(OSLIBS)
 
+DWM_CHECK_PKG(dwmwhat,[exit 1])
+
 DWM_REQUIRES_DWMPKG(libDwm,0.9.22)
 DWMDIR=`pkg-config --variable=prefix libDwm`
 DWMINCS=`pkg-config --cflags-only-I libDwm`
@@ -94,6 +96,9 @@ BUILD_DOCS=""
 AC_ARG_ENABLE([docs],[AS_HELP_STRING([--enable-docs],[build documentation])],
 	      [BUILD_DOCS="yes"], [])
 AC_SUBST(BUILD_DOCS)
+
+DWM_WHAT_STATUS=`./getvers.sh -S`
+AC_SUBST(DWM_WHAT_STATUS)
 
 AC_CONFIG_FILES([Makefile.vars packaging/debcontrol
                  packaging/fbsd_manifest packaging/libDwmWebUtils.pc

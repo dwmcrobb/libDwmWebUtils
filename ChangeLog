@@ -1,3 +1,8 @@
+2025-11-30  Daniel W. McRobb  <dwm@spark.mcplex.net>
+
+	* Use Dwm::What::Info (from dwmwhat package) for version
+	information.
+
 2025-09-05  Daniel W. McRobb  <dwm@kiva.mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.27

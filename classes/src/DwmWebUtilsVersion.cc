@@ -39,17 +39,4 @@
 //!  \brief version information implementation
 //---------------------------------------------------------------------------
 
-#include <string>
-#include "DwmGitVersion.hh"
 #include "DwmWebUtilsVersion.hh"
-
-namespace Dwm {
-
-  namespace WebUtils {
-
-    const GitVersion  Version("@(#) libDwmWebUtils-" DWM_WEBUTILS_VERSION);
-    
-  }  // namespace WebUtils
-
-}  // namespace Dwm
-

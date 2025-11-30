@@ -1,7 +1,7 @@
 //===========================================================================
 // @(#) $DwmPath$
 //===========================================================================
-//  Copyright (c) Daniel W. McRobb 2022
+//  Copyright (c) Daniel W. McRobb 2022, 2025
 //  All rights reserved.
 //
 //  Redistribution and use in source and binary forms, with or without
@@ -50,6 +50,7 @@ extern "C" {
 
 #include "DwmSysLogger.hh"
 #include "DwmWebUtils.hh"
+#include "DwmWebUtilsVersion.hh"
 
 using namespace std;
 using namespace boost::beast;

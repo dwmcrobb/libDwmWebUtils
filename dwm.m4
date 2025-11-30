@@ -948,3 +948,37 @@ define(DWM_GET_TAG,[
   AC_SUBST(DWM_VERSION)
   AC_SUBST(DWM_NAME)
 ])
+
+dnl --------------------------------------------------------------------------
+define(DWM_ADD_IF_NOT_PRESENT,[
+  inc_found=0
+  for inc in ${$1} ; do
+    if [[ "$2" = "${inc}" ]]; then
+      inc_found=1
+      break
+    fi
+  done
+  if [[ ${inc_found} -eq 0 ]]; then
+    if [[ -n "${$1}" ]]; then
+      [$1]="${$1}[$3][$2]"
+    else
+      [$1]="[$2]"
+    fi
+  fi
+])
+
+dnl --------------------------------------------------------------------------
+define(DWM_CHECK_PKG,[
+  AC_MSG_CHECKING([for [$1] pkg])
+  DWM_HAVE_[$1]_PKG=0
+  pkg-config --exists [$1]
+  if [[ $? -eq 0 ]]; then
+    DWM_HAVE_[$1]_PKG=1
+    DWM_ADD_IF_NOT_PRESENT(PC_PKGS,[$1],[ ])
+    DWM_ADD_IF_NOT_PRESENT(PC_REQ_PKGS,[$1],[, ])
+    AC_MSG_RESULT([found])
+  else
+    AC_MSG_RESULT([not found])
+    [$2]
+  fi
+])
