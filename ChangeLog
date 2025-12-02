@@ -1,3 +1,10 @@
+2025-12-02  Daniel W. McRobb  <dwm@spark.mcplex.net>
+
+	* tagged as libDwmWebUtils-0.1.29
+
+	* classes/include/DwmWebUtilsVersion.hh.in: tweaked version
+	information.
+
 2025-11-30  dwm  <dwm@nomnom.mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.28

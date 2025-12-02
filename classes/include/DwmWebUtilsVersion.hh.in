@@ -51,7 +51,8 @@ namespace Dwm {
     inline constexpr const Dwm::What::Info __attribute__((used))
     version_info(DWM_WHAT_TYPE_LIB, @DWM_WHAT_STATUS@, "libDwmWebUtils",
                  "@DWM_VERSION@",
-                 "Daniel McRobb 2025 " DWM_WHAT_SYM_JACKOLANTERN,
+                 DWM_WHAT_SYM_COPYRIGHT " Daniel McRobb 2025 "
+                 DWM_WHAT_SYM_GLOBE_AMERICAS,
                  "mcplex.net");
     
   }  // namespace WebUtils
