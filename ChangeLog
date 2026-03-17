@@ -1,5 +1,7 @@
 2026-03-17  Daniel W. McRobb  <dwm@spark.mcplex.net>
 
+	* tagged as libDwmWebUtils-0.1.30
+
 	* packaging/libDwmWebUtils.pc.in: Remove redundancy in Cflags and
 	Libs.
 
