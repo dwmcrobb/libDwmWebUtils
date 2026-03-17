@@ -7,5 +7,5 @@ Name: libDwmWebUtils
 Description: C++ classes for fetching web content via http and https
 Version: @TAGVERSION@
 Requires: libDwm
-Libs: @PTHREADLDFLAGS@ -L${libdir} -lDwmWebUtils @DWMLIBS@ @OSLIBS@
-Cflags: @PTHREADCXXFLAGS@ -I${includedir} @BOOSTINC@
+Libs: @PTHREADLDFLAGS@ -L${libdir} -lDwmWebUtils @OSLIBS@
+Cflags: @PTHREADCXXFLAGS@ -I${includedir}
