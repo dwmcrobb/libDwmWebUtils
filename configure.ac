@@ -47,8 +47,8 @@ esac
 
 echo "host_os ${host_os}"
 
-dnl  Check for C++20
-DWM_CHECK_CPLUSPLUS_20
+dnl  Check for C++23
+DWM_CHECK_CPLUSPLUS_23
 
 DWM_CHECK_NEED_LIBATOMIC
 
