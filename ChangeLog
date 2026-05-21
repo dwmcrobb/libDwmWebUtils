@@ -1,3 +1,8 @@
+2026-05-21  Daniel McRobb  <dwm@thrip.mcplex.net>
+
+	* classes/src/DwmWebUtils.cc: set Sec-Fetch-Site header value to
+	'none'.
+
 2026-03-24  Daniel W. McRobb  <dwm@spark.mcplex.net>
 
 	* tagged as libDwmWebUtils-0.1.31
