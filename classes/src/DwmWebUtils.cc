@@ -139,6 +139,7 @@ namespace Dwm {
       request.keep_alive(false);
       request.set(http::field::host, hostname);
       request.set(http::field::user_agent, "mcrover/1.0");
+      request.set(http::field::sec_fetch_site, "none");
       http::write(stream, request);
       http::response<http::string_body> response;
       beast::flat_buffer buffer;
